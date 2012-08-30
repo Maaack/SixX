@@ -2,8 +2,6 @@ import math
 import random
 from pymunk.vec2d import Vec2d
 
-dtime = 0
-
 def get_hex_points(size, angle):
     sides = 6
     points = range(1,sides+1)
@@ -33,10 +31,3 @@ def get_distance_within((x1,y1), (x2, y2), max_distance):
     # Avoid doing any square roots by checking the points
     # distance squared against the max distance squared
     return ((x2-x1)**2 + (y2-y1)**2) < (max_distance**2)
-
-def get_game_time():
-    return dtime
-
-def update_game_time(d_time):
-    global dtime
-    dtime += d_time

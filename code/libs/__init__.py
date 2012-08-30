@@ -3,5 +3,3 @@ from math_is_fun import get_hex_area
 from math_is_fun import get_random_vector
 from math_is_fun import get_random_angle
 from math_is_fun import get_distance_within
-from math_is_fun import get_game_time
-from math_is_fun import update_game_time

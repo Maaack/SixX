@@ -30,16 +30,9 @@ class Hexagon:
         points = self.get_points()
         pygame.draw.polygon(screen, self.color, points, 0)
 
-    def highlight(self, screen):
-        max_width = 4
-        frequency = 2
+    def strobe(self, screen, level):
+        width = int(level)
         points = self.get_points()
-        pulse_time = get_game_time() % (1000 / frequency)
-        interval = pulse_time * max_width / (1000 / (frequency * 2))
-        if ( interval > max_width ):
-            width = max_width - (interval - max_width)
-        else:
-            width = interval
         pygame.draw.lines(screen, self.color, 1, points, width)
 
     def get_points(self):

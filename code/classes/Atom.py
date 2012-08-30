@@ -11,8 +11,8 @@ class Atom:
     def display(self, screen):
         self.hexagon.display(screen)
 
-    def highlight(self, screen):
-        self.hexagon.highlight(screen)
+    def strobe(self, screen, level):
+        self.hexagon.strobe(screen, level)
 
     def point_in_shape(self, (x,y)):
         return self.hexagon.shape.point_query((x,y))
