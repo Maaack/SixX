@@ -39,7 +39,7 @@ class Game:
             the_body, the_shape = the_atom.hexagon.get_body()
             self.plane.add(the_body, the_shape)
 
-    def select_objects(self, point):
+    def select_objects_at_point(self, point):
         deselected_objects = []
         for i, selected in enumerate(self.selected_objects):
             if (selected.point_in_shape(point)):

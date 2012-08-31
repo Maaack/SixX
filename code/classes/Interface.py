@@ -15,6 +15,12 @@ class Interface:
 
     real_time = 0
     fps_limit = 60
+    time_mousebuttondown = 0
+    button_mousebuttondown = ''
+    pos_mousebuttondown = 0
+    time_keydown = 0
+    key_keydown = ''
+    mod_keydown = ''
 
     def __init__(self):
         # Defining some basic colors
@@ -43,7 +49,7 @@ class Interface:
         self.game = Game(self, number_of_hexes)
 
     def click(self, point):
-        self.game.select_objects(point)
+        return self.game.select_objects_at_point(point)
 
 
     def step(self):
@@ -53,7 +59,15 @@ class Interface:
                 return False
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_click = mouse_x, mouse_y = pygame.mouse.get_pos()
+                self.pos_mousebuttondown = event.pos
+                self.button_mousebuttondown = event.button
+                self.time_mousebuttondown = self.real_time
+
+            if event.type == pygame.MOUSEBUTTONUP:
+                self.pos_mousebuttondown = 0
+                self.button_mousebuttondown = ''
+                self.time_mousebuttondown = 0
+                mouse_click = mouse_x, mouse_y = event.pos
                 self.click(mouse_click)
 
 
