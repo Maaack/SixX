@@ -44,7 +44,7 @@ class Game:
         for i, selected in enumerate(self.selected_objects):
             if (selected.point_in_shape(point)):
                 self.selected_objects.pop(i)
-                self.deselected_objects.append(selected)
+                deselected_objects.append(selected)
 
         clickable_objects_r = list(self.clickable_objects)
         clickable_objects_r.reverse()
