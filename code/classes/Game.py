@@ -76,6 +76,8 @@ class Game:
             selected_object.strobe(screen, atom_strobe_width)
 
     def move_selected(self, point):
+        if len(self.selected_objects) == 0:
+            return False
         middle_points = []
         for i, selected in enumerate(self.selected_objects):
             middle_points.append(get_average_vector(selected.get_points()))
