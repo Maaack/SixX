@@ -26,6 +26,9 @@ class Hexagon:
         self.shape.friction = friction
         self.shape.elasticity = elasticity
 
+    def point_in_shape(self, (x,y)):
+        return self.shape.point_query((x,y))
+
     def display(self, screen):
         points = self.get_points()
         pygame.draw.polygon(screen, self.color, points, 0)
@@ -42,6 +45,12 @@ class Hexagon:
             points[i] = int(x), int(y)
         self.points = points
         return self.points
+
+    def get_display_object(self):
+        return self
+
+    def get_clickable_object(self):
+        return self
 
     def apply_force(self, vector = (0,0), offset  = (0,0)):
         vector.normalize_return_length()

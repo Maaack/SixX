@@ -14,7 +14,7 @@ from classes import *
 class Interface:
 
     real_time = 0
-    fps_limit = 60
+    fps_limit = 40
     time_mousebuttondown = 0
     button_mousebuttondown = ''
     pos_mousebuttondown = 0
@@ -51,6 +51,9 @@ class Interface:
     def click(self, point):
         return self.game.select_objects_at_point(point)
 
+    def command(self, point):
+        return self.game.move_selected(point)
+
 
     def step(self):
         # Get any user input
@@ -68,7 +71,8 @@ class Interface:
                 self.button_mousebuttondown = ''
                 self.time_mousebuttondown = 0
                 mouse_click = mouse_x, mouse_y = event.pos
-                self.click(mouse_click)
+                if (self.click(mouse_click) == 0):
+                    self.command(mouse_click)
 
 
         # Limit the framerate

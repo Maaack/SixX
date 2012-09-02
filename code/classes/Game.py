@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # Atom Class
-from Atom import Atom
-from Plane import Plane
+from classes import *
 from libs import *
 import random
 
@@ -34,15 +33,17 @@ class Game:
             color = random.choice(interface.colors)
             the_atom = Atom((x, y), angle, color)
             self.all_objects.append(the_atom)
-            self.clickable_objects.append(the_atom)
-            self.display_objects.append(the_atom)
+            self.clickable_objects.append(the_atom.get_clickable_object())
+            self.display_objects.append(the_atom.get_display_object())
             the_body, the_shape = the_atom.hexagon.get_body()
             self.plane.add(the_body, the_shape)
 
     def select_objects_at_point(self, point):
+        action_taken = False
         deselected_objects = []
         for i, selected in enumerate(self.selected_objects):
             if (selected.point_in_shape(point)):
+                action_taken = True
                 self.selected_objects.pop(i)
                 deselected_objects.append(selected)
 
@@ -57,7 +58,10 @@ class Game:
             if (deselected):
                 continue
             if (clickable.point_in_shape(point)):
+                action_taken = True
                 self.selected_objects.append(clickable)
+        return action_taken
+
 
     def step(self, d_game_time, d_real_time, screen):
         self.update_game_time(d_game_time)
@@ -70,6 +74,14 @@ class Game:
 
         for selected_object in self.selected_objects:
             selected_object.strobe(screen, atom_strobe_width)
+
+    def move_selected(self, point):
+        middle_points = []
+        for i, selected in enumerate(self.selected_objects):
+            middle_points.append(get_average_vector(selected.get_points()))
+        average_vector = get_average_vector(middle_points)
+        the_line = FadeInLine(average_vector, point)
+        self.display_objects.append(the_line)
 
 
     def get_game_time(self):

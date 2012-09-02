@@ -31,3 +31,21 @@ def get_distance_within((x1,y1), (x2, y2), max_distance):
     # Avoid doing any square roots by checking the points
     # distance squared against the max distance squared
     return ((x2-x1)**2 + (y2-y1)**2) < (max_distance**2)
+
+def get_average_vector(vectors):
+    if len(vectors) == 0:
+        return Vec2d(0,0)
+    total_vector = Vec2d(0,0)
+    count_vectors = 0
+    for the_vector in vectors:
+        count_vectors += 1
+        total_vector += Vec2d(the_vector)
+    avg_vector = total_vector/count_vectors
+    return avg_vector
+
+def get_segment_of_line(a, b, total = 1.0):
+    if (total >= 1.0):
+        total = 1.0
+    ab = b - a
+    return a + ab * total
+

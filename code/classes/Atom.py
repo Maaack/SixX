@@ -8,14 +8,11 @@ class Atom:
         self.skill = skill
         self.hexagon = Hexagon(100, (x, y), radius, angle, color)
 
-    def display(self, screen):
-        self.hexagon.display(screen)
+    def get_display_object(self):
+        return self.hexagon
 
-    def strobe(self, screen, level):
-        self.hexagon.strobe(screen, level)
-
-    def point_in_shape(self, (x,y)):
-        return self.hexagon.shape.point_query((x,y))
+    def get_clickable_object(self):
+        return self.hexagon
 
     # Just for debugging
     def __str__(self):
