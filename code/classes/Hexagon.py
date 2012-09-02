@@ -52,9 +52,13 @@ class Hexagon:
     def get_clickable_object(self):
         return self
 
-    def apply_force(self, vector = (0,0), offset  = (0,0)):
-        vector.normalize_return_length()
-        self.body.apply_force(vector, offset)
+    def apply_force(self, f, r = (0,0)):
+        vector = pymunk.Vec2d(f)
+        self.body.apply_force(vector, r)
+
+    def apply_impulse(self, j, r=(0, 0)):
+        vector = pymunk.Vec2d(j)
+        self.body.apply_impulse(vector, r)
 
     def get_body(self):
         return self.body, self.shape

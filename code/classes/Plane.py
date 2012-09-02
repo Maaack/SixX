@@ -9,7 +9,7 @@ class Plane:
         self.position = position
         self.space = pymunk.Space()
         # Gravity vector
-        self.space.gravity = (0.0, 300.0)
+        self.space.gravity = (0.0, 0.0)
         self.prev_step_time = 0
         self.next_step_time = 0
 

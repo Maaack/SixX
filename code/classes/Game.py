@@ -96,11 +96,35 @@ class Game:
     def move_selected(self, point):
         if len(self.selected_objects) == 0:
             return False
+        main_line_delay = 8
         middle_points = []
-        for i, selected in enumerate(self.selected_objects):
-            middle_points.append(get_average_vector(selected.get_points()))
+        for selected in self.selected_objects:
+            object_middle = get_average_vector(selected.get_points())
+            # If the selected object is of type Hexagon
+            # then we will try to apply force.
+            # This will be replaced in the future with a
+            # more generic solution.
+            force_modifier = 30.0
+            if (isinstance(selected, Hexagon)):
+                force_vector = (point - object_middle) * force_modifier
+                selected.apply_impulse(force_vector)
+            middle_points.append(object_middle)
+
+        # Get the average vector of all the objects selected
+        # or in other words, the groups most middle point.
         average_vector = get_average_vector(middle_points)
+        # Create a line from the average of selected objects to the point
         the_line = FadeInLine(average_vector, point)
+
+        # If the number of selected objects is greater than 1,
+        # draw lines from their middle's to the average, and
+        # put a delay on the display of the main line.
+        if len(middle_points) > 1:
+            for middle_point in middle_points:
+                to_middle_line = FadeInLine(middle_point, average_vector, 2, (127,255,127,64), main_line_delay, 48)
+                self.highlight_objects.append(to_middle_line)
+            the_line.set_display_delay(main_line_delay)
+
         self.highlight_objects.append(the_line)
 
 
