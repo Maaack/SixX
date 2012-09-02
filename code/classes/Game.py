@@ -2,6 +2,7 @@
 # Atom Class
 from classes import *
 from libs import *
+import pygame
 import random
 
 class Game:
@@ -13,17 +14,22 @@ class Game:
     display_objects = []
     selected_objects = []
     clickable_objects = []
+    highlight_objects = []
+
     game_time = 0
     real_time = 0
 
 
     def __init__(self, interface, number_of_hexes):
         self.interface = interface
-        screen_width, screen_height = interface.screen_size
+        screen_width, screen_height = screen_size = interface.screen_size
         # Create the Plane that we are playing in.
         self.plane = Plane(interface.screen_size)
         # Add it to the objects that display
         self.display_objects.append(self.plane)
+
+        self.highlight_surface = pygame.Surface(screen_size, pygame.SRCALPHA)
+
         # Radius of all Atoms to start
         radius = 8
         for n in range(number_of_hexes):
@@ -63,17 +69,29 @@ class Game:
         return action_taken
 
 
-    def step(self, d_game_time, d_real_time, screen):
+    def step(self, d_game_time, d_real_time):
         self.update_game_time(d_game_time)
         self.update_real_time(d_real_time)
-        atom_strobe_width = self.interface.real_time_tri_wave(2, 4)
-
         self.plane.step(d_game_time)
+
+
+    def display(self, screen):
+        atom_strobe_width = self.interface.real_time_tri_wave(2, 4)
         for display_object in self.display_objects:
             display_object.display(screen)
 
         for selected_object in self.selected_objects:
             selected_object.strobe(screen, atom_strobe_width)
+
+        self.highlight_surface.fill((255,255,255,0))
+
+        for hightlighted_object in self.highlight_objects:
+            hightlighted_object.display(self.highlight_surface)
+
+        screen.unlock()
+        screen.blit(self.highlight_surface, (0,0))
+        screen.lock()
+
 
     def move_selected(self, point):
         if len(self.selected_objects) == 0:
@@ -83,7 +101,7 @@ class Game:
             middle_points.append(get_average_vector(selected.get_points()))
         average_vector = get_average_vector(middle_points)
         the_line = FadeInLine(average_vector, point)
-        self.display_objects.append(the_line)
+        self.highlight_objects.append(the_line)
 
 
     def get_game_time(self):

@@ -7,7 +7,7 @@ class FadeInLine:
 
     display_ticks = 0
 
-    def __init__(self, a, b, radius = 1 , color = (0,0,0), increments = 20, duration = 60):
+    def __init__(self, a, b, radius = 2 , color = (0, 200, 0, 128), increments = 16, duration = 48):
         self.a = a
         self.b = b
         self.radius = radius

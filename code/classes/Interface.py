@@ -84,8 +84,8 @@ class Interface:
         self.screen.fill(self.white)
 
         # Make time go with gravity and display things
-        self.game.step((1.0/self.fps_limit), dtime, self.screen)
-
+        self.game.step((1.0/self.fps_limit), dtime)
+        self.game.display(self.screen)
 
         self.screen.unlock()
         # Display everything in the screen.
