@@ -29,14 +29,20 @@ class Hexagon:
     def point_in_shape(self, (x,y)):
         return self.shape.point_query((x,y))
 
-    def display(self, screen):
+    def display(self, screen, offset = (0,0)):
         points = self.get_points()
-        pygame.draw.polygon(screen, self.color, points, 0)
+        offset_points = []
+        for point in points:
+            offset_points.append((pymunk.Vec2d(point) + pymunk.Vec2d(offset)))
+        pygame.draw.polygon(screen, self.color, offset_points, 0)
 
-    def strobe(self, screen, level):
+    def strobe(self, screen, offset = (0,0), level = 6):
         width = int(level)
         points = self.get_points()
-        pygame.draw.lines(screen, self.color, 1, points, width)
+        offset_points = []
+        for point in points:
+            offset_points.append((pymunk.Vec2d(point) + pymunk.Vec2d(offset)))
+        pygame.draw.lines(screen, self.color, 1, offset_points, width)
 
     def get_points(self):
         shape_points = self.shape.get_points()

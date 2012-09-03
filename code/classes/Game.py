@@ -1,8 +1,9 @@
 #!/usr/bin/env python
-# Atom Class
+# Game Class
 from classes import *
 from libs import *
 import pygame
+import pymunk
 import random
 
 class Game:
@@ -75,38 +76,41 @@ class Game:
         self.plane.step(d_game_time)
 
 
-    def display(self, screen):
-        atom_strobe_width = self.interface.real_time_tri_wave(2, 4)
+    def display(self, screen, offset = (0,0)):
+        atom_strobe_width = self.interface.real_time_tri_wave(2, 5)
         for display_object in self.display_objects:
-            display_object.display(screen)
+            display_object.display(screen, offset)
 
         for selected_object in self.selected_objects:
-            selected_object.strobe(screen, atom_strobe_width)
+            selected_object.strobe(screen, offset, atom_strobe_width)
 
         self.highlight_surface.fill((255,255,255,0))
 
         for hightlighted_object in self.highlight_objects:
-            hightlighted_object.display(self.highlight_surface)
+            hightlighted_object.display(self.highlight_surface, offset)
 
         screen.unlock()
         screen.blit(self.highlight_surface, (0,0))
         screen.lock()
 
 
-    def move_selected(self, point):
+    def move_selected(self, point, offset = (0,0)):
         if len(self.selected_objects) == 0:
             return False
+        offset = pymunk.Vec2d(offset)
+        point = pymunk.Vec2d(point)
+        offset_point = point - offset
         main_line_delay = 8
         middle_points = []
         for selected in self.selected_objects:
-            object_middle = get_average_vector(selected.get_points())
+            object_middle = get_average_vector(selected.get_points()) - offset
             # If the selected object is of type Hexagon
             # then we will try to apply force.
             # This will be replaced in the future with a
             # more generic solution.
             force_modifier = 30.0
             if (isinstance(selected, Hexagon)):
-                force_vector = (point - object_middle) * force_modifier
+                force_vector = (offset_point - object_middle) * force_modifier
                 selected.apply_impulse(force_vector)
             middle_points.append(object_middle)
 
@@ -114,7 +118,7 @@ class Game:
         # or in other words, the groups most middle point.
         average_vector = get_average_vector(middle_points)
         # Create a line from the average of selected objects to the point
-        the_line = FadeInLine(average_vector, point)
+        the_line = FadeInLine(average_vector, offset_point)
 
         # If the number of selected objects is greater than 1,
         # draw lines from their middle's to the average, and
