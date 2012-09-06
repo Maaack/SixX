@@ -46,9 +46,9 @@ class Hexagon:
 
     def get_points(self):
         shape_points = self.shape.get_points()
-        points = range(6)
-        for i , (x, y) in enumerate(shape_points):
-            points[i] = int(round(x)), int(round(y))
+        points = []
+        for (x, y) in shape_points:
+            points.append((int(round(x)), int(round(y))))
         self.points = points
         return self.points
 

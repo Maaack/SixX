@@ -131,6 +131,8 @@ class Game:
 
         self.highlight_objects.append(the_line)
 
+    def drop_highlights(self):
+        self.highlight_objects = []
 
     def get_game_time(self):
         return self.game_time
