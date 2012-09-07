@@ -85,37 +85,31 @@ class Game:
     def display(self, screen, offset = (0,0)):
         self.display_tick += 1
         atom_strobe_width = self.interface.real_time_tri_wave(self.atom_strobe_frequency, self.atom_strobe_size)
+        self.display_surface.fill((255,255,255,0))
         self.background_surface.fill((255,255,255,0))
+        self.foreground_surface.fill((255,255,255,0))
+
+        # Display all the objects in the display
+        # objects list.  Usually Hexagons.
+        for display_object in self.display_objects:
+            display_object.display(self.display_surface, offset)
+
         # Selected Objects will create a pulse in the background
         for selected_object in self.selected_objects:
             selected_object.strobe(self.background_surface, offset, atom_strobe_width)
+
+        # Now begin with the foreground display
+        # things like the commands that are being
+        # currently executed.
+        for hightlighted_object in self.highlight_objects:
+            hightlighted_object.display(self.foreground_surface, offset)
 
         # Display background to surface first,
         # as other things drawn to the screen
         # will go above this surface graphics.
         screen.unlock()
         screen.blit(self.background_surface, (0,0))
-        screen.lock()
-
-        # Display all the objects in the display
-        # objects list.  Usually Hexagons.
-        self.display_surface.fill((255,255,255,0))
-        for display_object in self.display_objects:
-            display_object.display(self.display_surface, offset)
-
-        screen.unlock()
         screen.blit(self.display_surface, (0,0))
-        screen.lock()
-
-        # Now begin with the foreground display
-        # things like the commands that are being
-        # currently executed.
-        self.foreground_surface.fill((255,255,255,0))
-
-        for hightlighted_object in self.highlight_objects:
-            hightlighted_object.display(self.foreground_surface, offset)
-
-        screen.unlock()
         screen.blit(self.foreground_surface, (0,0))
         screen.lock()
 
