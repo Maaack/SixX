@@ -16,9 +16,13 @@ class Game:
     selected_objects = []
     clickable_objects = []
     highlight_objects = []
-
+    # Clocks
     game_time = 0
     real_time = 0
+    # Display Variables
+    display_tick = 0
+    atom_strobe_frequency = 2.0
+    atom_strobe_size = 5
 
 
     def __init__(self, interface, number_of_hexes):
@@ -29,7 +33,9 @@ class Game:
         # Add it to the objects that display
         self.display_objects.append(self.plane)
 
-        self.highlight_surface = pygame.Surface(screen_size, pygame.SRCALPHA)
+        self.display_surface    = pygame.Surface(screen_size, pygame.SRCALPHA)
+        self.foreground_surface = pygame.Surface(screen_size, pygame.SRCALPHA)
+        self.background_surface = pygame.Surface(screen_size, pygame.SRCALPHA)
 
         # Radius of all Atoms to start
         radius = 8
@@ -77,20 +83,40 @@ class Game:
 
 
     def display(self, screen, offset = (0,0)):
-        atom_strobe_width = self.interface.real_time_tri_wave(2, 5)
-        for display_object in self.display_objects:
-            display_object.display(screen, offset)
-
+        self.display_tick += 1
+        atom_strobe_width = self.interface.real_time_tri_wave(self.atom_strobe_frequency, self.atom_strobe_size)
+        self.background_surface.fill((255,255,255,0))
+        # Selected Objects will create a pulse in the background
         for selected_object in self.selected_objects:
-            selected_object.strobe(screen, offset, atom_strobe_width)
+            selected_object.strobe(self.background_surface, offset, atom_strobe_width)
 
-        self.highlight_surface.fill((255,255,255,0))
+        # Display background to surface first,
+        # as other things drawn to the screen
+        # will go above this surface graphics.
+        screen.unlock()
+        screen.blit(self.background_surface, (0,0))
+        screen.lock()
 
-        for hightlighted_object in self.highlight_objects:
-            hightlighted_object.display(self.highlight_surface, offset)
+        # Display all the objects in the display
+        # objects list.  Usually Hexagons.
+        self.display_surface.fill((255,255,255,0))
+        for display_object in self.display_objects:
+            display_object.display(self.display_surface, offset)
 
         screen.unlock()
-        screen.blit(self.highlight_surface, (0,0))
+        screen.blit(self.display_surface, (0,0))
+        screen.lock()
+
+        # Now begin with the foreground display
+        # things like the commands that are being
+        # currently executed.
+        self.foreground_surface.fill((255,255,255,0))
+
+        for hightlighted_object in self.highlight_objects:
+            hightlighted_object.display(self.foreground_surface, offset)
+
+        screen.unlock()
+        screen.blit(self.foreground_surface, (0,0))
         screen.lock()
 
 

@@ -8,6 +8,7 @@ import pygame
 import pygame.mixer
 import random
 import pymunk
+import math
 from pygame.locals import *
 from libs import *
 from classes import *
@@ -117,7 +118,7 @@ class Interface:
 
     def real_time_tri_wave(self, frequency, max_height = 1.0):
         wavelength_ms = 1000.0 / frequency
-        level_2 = 2 * (self.real_time % wavelength_ms) / wavelength_ms
+        level_2 = 2 * math.fmod(self.real_time, wavelength_ms) / wavelength_ms
         if level_2 > 1:
             return (1 - (level_2 - 1)) * max_height
         else:
