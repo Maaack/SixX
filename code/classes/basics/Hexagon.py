@@ -69,6 +69,9 @@ class Hexagon:
     def get_body(self):
         return self.body, self.shape
 
+    def get_shape(self):
+        return self.shape
+
     # Just for debugging
     def __str__(self):
         return "( " + str(self.shape) + ", " + str(self.body) + " ), " + str(self.mass) + ", " + str(self.radius) + ", " + str(self.surface_area)

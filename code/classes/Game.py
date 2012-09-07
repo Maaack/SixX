@@ -126,7 +126,8 @@ class Game:
         main_line_delay = 8
         middle_points = []
         for selected in self.selected_objects:
-            object_middle = get_average_vector(selected.get_points()) - offset
+            position = pymunk.Vec2d(selected.body.position)
+            object_middle = position - offset
             # If the selected object is of type Hexagon
             # then we will try to apply force.
             # This will be replaced in the future with a
