@@ -11,7 +11,7 @@ import pymunk
 import math
 from pygame.locals import *
 from libs import *
-from classes import *
+from Game import Game
 
 class Interface:
 

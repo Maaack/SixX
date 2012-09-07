@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Atom Class
-from Hexagon import Hexagon
+from classes.basics.Hexagon import Hexagon
 
 class Atom:
     def __init__(self, (x, y), angle, color, skill = 'mimic'):

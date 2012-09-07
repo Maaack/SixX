@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # Game Class
 from classes import *
+from basics import *
+from elements import *
+from lines import *
 from libs import *
 import pygame
 import pymunk

@@ -1,8 +1,5 @@
-from pymunk import *
-from Atom import Atom
-from FadeInLine import FadeInLine
-from Hexagon import Hexagon
-from Plane import Plane
-from Wall import Wall
-from Game import Game
+import basics
+import lines
+import elements
 from Interface import Interface
+from Game import Game

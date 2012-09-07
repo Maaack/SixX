@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Plane Class
 import pymunk
-from Wall import *
+from classes.basics.Wall import *
 
 class Plane:
     def __init__(self, (height, width), position = (0,0)):
