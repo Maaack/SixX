@@ -51,7 +51,7 @@ class Interface:
         # Setting a title to the window
         pygame.display.set_caption('SixX')
 
-        number_of_hexes = 100
+        number_of_hexes = 30
         self.game = Game(self, number_of_hexes)
 
     def click(self, point):

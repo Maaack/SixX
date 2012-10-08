@@ -1,14 +1,13 @@
 #!/usr/bin/env python
-# MyCircle Class
-# Experimenting with circles that rotate so that
-# I may eventually get to hexagons.
+# Circle Class
+import pygame
 import pymunk
 import math
 import libs
 from libs import *
 
 class Circle:
-    def __init__(self, position, size, color = (255,255,255), width = 1, mass = 100):
+    def __init__(self, mass, position, size, color = (255,255,255), width = 0):
         self.position = position
         self.size = size
         self.color = color
@@ -26,14 +25,17 @@ class Circle:
         return self.shape.point_query((x,y))
 
     def display(self, screen, offset = (0,0)):
-        offset = pymunk.Vec2d(offset)
-        x, y = self.shape.offset
-        point = pymunk.Vec2d(int(x), int(y))
+        point = pymunk.Vec2d(self.body.position)
         point = point + offset
-        x2 = math.cos(self.body.angle)*self.size + point.x
-        y2 = math.sin(self.body.angle)*self.size + point.y
-        pygame.draw.circle(screen, self.color, p, self.size, self.width)
-        pygame.draw.line(screen, white, point, (x2,y2), 2)
+        point_x, point_y = point
+        point = (int(round(point_x)), int(round(point_y)))
+        radius = int(round(self.size))
+        pygame.draw.circle(screen, self.color, point, radius, int(self.width))
+        x2 = math.cos(self.body.angle)*self.size + point_x
+        y2 = math.sin(self.body.angle)*self.size + point_y
+        line_color =  (255,255,255)
+        point_2 = (int(round(x2)),int(round(y2)))
+        pygame.draw.line(screen, line_color, point, point_2, 2)
 
     def get_display_object(self):
         return self

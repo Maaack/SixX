@@ -26,7 +26,8 @@ class Game:
     display_tick = 0
     atom_strobe_frequency = 2.0
     atom_strobe_size = 5
-
+    atom_radius = 16
+    screen_edge_spawn_radius = 16
 
     def __init__(self, interface, number_of_hexes):
         self.interface = interface
@@ -40,13 +41,21 @@ class Game:
         self.foreground_surface = pygame.Surface(screen_size, pygame.SRCALPHA)
         self.background_surface = pygame.Surface(screen_size, pygame.SRCALPHA)
 
-        # Radius of all Atoms to start
-        radius = 8
+        # Place the player's energy on the screen
+        player_color = random.choice(interface.colors)
+        x = random.randint(self.screen_edge_spawn_radius, screen_width-self.screen_edge_spawn_radius)
+        y = random.randint(self.screen_edge_spawn_radius, screen_height-self.screen_edge_spawn_radius)
+        angle = get_random_angle()
+        the_energy = Energy((x,y), angle)
+        self.all_objects.append(the_energy.get_clickable_object())
+        self.display_objects.append(the_energy.get_clickable_object())
+
+        # Make some atoms
         for n in range(number_of_hexes):
-            x = random.randint(radius, screen_width-radius)
-            y = random.randint(radius, screen_height-radius)
+            x = random.randint(self.atom_radius, screen_width-self.atom_radius)
+            y = random.randint(self.atom_radius, screen_height-self.atom_radius)
             angle = get_random_angle()
-            color = random.choice(interface.colors)
+            color = (0, 0, 0)
             the_atom = Atom((x, y), angle, color)
             self.all_objects.append(the_atom)
             self.clickable_objects.append(the_atom.get_clickable_object())
