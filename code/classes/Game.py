@@ -48,7 +48,8 @@ class Game:
         angle = get_random_angle()
         the_energy = Energy((x,y), angle)
         self.all_objects.append(the_energy.get_clickable_object())
-        self.display_objects.append(the_energy.get_clickable_object())
+        self.clickable_objects.append(the_energy.get_clickable_object())
+        self.display_objects.append(the_energy.get_display_object())
 
         # Make some atoms
         for n in range(number_of_hexes):
