@@ -34,7 +34,7 @@ class Hexagon:
         offset_points = []
         for point in points:
             offset_points.append((pymunk.Vec2d(point) + pymunk.Vec2d(offset)))
-        pygame.draw.polygon(screen, self.color, offset_points, 0)
+        pygame.draw.polygon(screen, self.color, offset_points, self.width)
 
     def strobe(self, screen, offset = (0,0), level = 6):
         width = int(level)
