@@ -18,7 +18,7 @@ class OutwardPulseLine:
         self.scale = scale
         self.duration = duration
 
-    def display(self, screen, offset = (0,0)):
+    def display(self, game, screen, offset = (0,0)):
         offset = pymunk.Vec2d(offset)
         graphic_ticks = self.display_ticks - self.delay
         if (graphic_ticks > 0 and graphic_ticks < self.duration):

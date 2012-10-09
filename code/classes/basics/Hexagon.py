@@ -8,6 +8,10 @@ from libs import *
 
 
 class Hexagon:
+    strobe_frequency = 2.0
+    strobe_size = 5
+    game = 0
+
     def __init__(self, mass, position, radius, angle = 0, color = ( 0, 0, 0 ), width = 1, friction = 900.0, elasticity = 0.9 ):
         self.mass = mass
         self.position = position
@@ -29,15 +33,19 @@ class Hexagon:
     def point_in_shape(self, (x,y)):
         return self.shape.point_query((x,y))
 
-    def display(self, screen, offset = (0,0)):
+    def display(self, game, screen, offset = (0,0)):
         points = self.get_points()
         offset_points = []
         for point in points:
             offset_points.append((pymunk.Vec2d(point) + pymunk.Vec2d(offset)))
         pygame.draw.polygon(screen, self.color, offset_points, self.width)
 
-    def strobe(self, screen, offset = (0,0), level = 6):
-        width = int(level)
+    def display_selected(self, game, screen, offset = (0,0)):
+        self.strobe(game, screen, offset)
+
+    def strobe(self, game, screen, offset = (0,0)):
+        strobe_width = interval_triangle_wave(game.real_time, self.strobe_frequency, self.strobe_size)
+        width = int(strobe_width)
         points = self.get_points()
         offset_points = []
         for point in points:

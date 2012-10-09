@@ -49,3 +49,10 @@ def get_segment_of_line(a, b, total = 1.0):
     ab = b - a
     return a + ab * total
 
+def interval_triangle_wave(time, frequency, max_height = 1.0):
+    wavelength_ms = 1000.0 / frequency
+    level_2 = 2 * math.fmod(time, wavelength_ms) / wavelength_ms
+    if level_2 > 1:
+        return (1 - (level_2 - 1)) * max_height
+    else:
+        return level_2 * max_height
