@@ -50,6 +50,8 @@ class Game:
         self.all_objects.append(the_energy.get_clickable_object())
         self.clickable_objects.append(the_energy.get_clickable_object())
         self.display_objects.append(the_energy.get_display_object())
+        the_body, the_shape = the_energy.circle.get_body()
+        self.plane.add(the_body, the_shape)
 
         # Make some atoms
         for n in range(number_of_hexes):

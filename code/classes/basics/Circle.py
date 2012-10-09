@@ -45,7 +45,6 @@ class Circle:
 
     def pulse(self, game, screen, offset = (0,0)):
         strobe_width = interval_triangle_wave(game.real_time, self.strobe_frequency, self.strobe_size)
-        print strobe_width
         width = int(strobe_width)
         point = pymunk.Vec2d(self.body.position)
         point = point + offset
