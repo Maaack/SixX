@@ -26,7 +26,8 @@ class Game:
     display_tick = 0
     atom_strobe_frequency = 2.0
     atom_strobe_size = 5
-
+    atom_radius = 16
+    screen_edge_spawn_radius = 16
 
     def __init__(self, interface, number_of_hexes):
         self.interface = interface
@@ -40,13 +41,24 @@ class Game:
         self.foreground_surface = pygame.Surface(screen_size, pygame.SRCALPHA)
         self.background_surface = pygame.Surface(screen_size, pygame.SRCALPHA)
 
-        # Radius of all Atoms to start
-        radius = 8
+        # Place the player's energy on the screen
+        player_color = random.choice(interface.colors)
+        x = random.randint(self.screen_edge_spawn_radius, screen_width-self.screen_edge_spawn_radius)
+        y = random.randint(self.screen_edge_spawn_radius, screen_height-self.screen_edge_spawn_radius)
+        angle = get_random_angle()
+        the_energy = Energy((x,y), angle)
+        self.all_objects.append(the_energy.get_clickable_object())
+        self.clickable_objects.append(the_energy.get_clickable_object())
+        self.display_objects.append(the_energy.get_display_object())
+        the_body, the_shape = the_energy.circle.get_body()
+        self.plane.add(the_body, the_shape)
+
+        # Make some atoms
         for n in range(number_of_hexes):
-            x = random.randint(radius, screen_width-radius)
-            y = random.randint(radius, screen_height-radius)
+            x = random.randint(self.atom_radius, screen_width-self.atom_radius)
+            y = random.randint(self.atom_radius, screen_height-self.atom_radius)
             angle = get_random_angle()
-            color = random.choice(interface.colors)
+            color = (0, 0, 0)
             the_atom = Atom((x, y), angle, color)
             self.all_objects.append(the_atom)
             self.clickable_objects.append(the_atom.get_clickable_object())
@@ -87,7 +99,6 @@ class Game:
 
     def display(self, screen, offset = (0,0)):
         self.display_tick += 1
-        atom_strobe_width = self.interface.real_time_tri_wave(self.atom_strobe_frequency, self.atom_strobe_size)
         self.display_surface.fill((255,255,255,0))
         self.background_surface.fill((255,255,255,0))
         self.foreground_surface.fill((255,255,255,0))
@@ -95,17 +106,17 @@ class Game:
         # Display all the objects in the display
         # objects list.  Usually Hexagons.
         for display_object in self.display_objects:
-            display_object.display(self.display_surface, offset)
+            display_object.display(self, self.display_surface, offset)
 
         # Selected Objects will create a pulse in the background
         for selected_object in self.selected_objects:
-            selected_object.strobe(self.background_surface, offset, atom_strobe_width)
+            selected_object.display_selected(self, self.background_surface, offset)
 
         # Now begin with the foreground display
         # things like the commands that are being
         # currently executed.
-        for hightlighted_object in self.highlight_objects:
-            hightlighted_object.display(self.foreground_surface, offset)
+        for highlighted_object in self.highlight_objects:
+            highlighted_object.display(self, self.foreground_surface, offset)
 
         # Display background to surface first,
         # as other things drawn to the screen
@@ -126,13 +137,17 @@ class Game:
         main_line_delay = 8
         middle_points = []
         for selected in self.selected_objects:
-            object_middle = get_average_vector(selected.get_points()) - offset
+            position = pymunk.Vec2d(selected.body.position)
+            object_middle = position - offset
             # If the selected object is of type Hexagon
             # then we will try to apply force.
             # This will be replaced in the future with a
             # more generic solution.
             force_modifier = 30.0
             if (isinstance(selected, Hexagon)):
+                force_vector = (offset_point - object_middle) * force_modifier
+                selected.apply_impulse(force_vector)
+            if (isinstance(selected, Circle)):
                 force_vector = (offset_point - object_middle) * force_modifier
                 selected.apply_impulse(force_vector)
             middle_points.append(object_middle)

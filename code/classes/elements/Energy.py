@@ -1,13 +1,17 @@
 #!/usr/bin/env python
-# Atom Class
+# Energy Class
+import math
+from classes.basics.Circle import Circle
 
 class Energy:
-    def __init__(self, position):
-        self.position = position
+    def __init__(self, (x, y), angle, color = (255,0,0), mass = 100):
+        areabymass = 2
+        area = mass * areabymass
+        radius = math.sqrt(area / math.pi)
+        self.circle = Circle( mass, (x, y), radius, color)
 
-    def display(self):
-        pygame.draw.circle(screen, self.color, p, self.size, self.width)
+    def get_display_object(self):
+        return self.circle
 
-    # Just for debugging
-    def __str__(self):
-        return "( " + str(self.position.x) + ", " + str(self.position.y) + " ) "
+    def get_clickable_object(self):
+        return self.circle
