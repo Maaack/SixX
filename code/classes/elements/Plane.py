@@ -35,9 +35,9 @@ class Plane:
         for arg in args:
             self.space.add(arg)
 
-    def display(self, screen, offset = (0,0)):
+    def display(self, game, screen, offset = (0,0)):
         for wall in self.walls:
-            wall.display(screen, offset)
+            wall.display(game, screen, offset)
         self.space.step(self.next_step_time)
         self.prev_step_time = self.next_step_time
 

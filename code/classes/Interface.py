@@ -116,10 +116,8 @@ class Interface:
 
         return True
 
-    def real_time_tri_wave(self, frequency, max_height = 1.0):
-        wavelength_ms = 1000.0 / frequency
-        level_2 = 2 * math.fmod(self.real_time, wavelength_ms) / wavelength_ms
-        if level_2 > 1:
-            return (1 - (level_2 - 1)) * max_height
-        else:
-            return level_2 * max_height
+    def get_real_time(self):
+        return self.real_time
+
+
+

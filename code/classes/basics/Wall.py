@@ -14,7 +14,7 @@ class Wall:
         self.shape.collision_type = 0
         self.shape.elasticity = 0.9
 
-    def display(self, screen, offset = (0,0)):
+    def display(self, game, screen, offset = (0,0)):
         offset_a = self.a + pymunk.Vec2d(offset)
         offset_b = self.b + pymunk.Vec2d(offset)
         pygame.draw.line(screen, (0,0,0), offset_a, offset_b, 6)

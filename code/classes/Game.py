@@ -97,7 +97,6 @@ class Game:
 
     def display(self, screen, offset = (0,0)):
         self.display_tick += 1
-        atom_strobe_width = self.interface.real_time_tri_wave(self.atom_strobe_frequency, self.atom_strobe_size)
         self.display_surface.fill((255,255,255,0))
         self.background_surface.fill((255,255,255,0))
         self.foreground_surface.fill((255,255,255,0))
@@ -105,17 +104,17 @@ class Game:
         # Display all the objects in the display
         # objects list.  Usually Hexagons.
         for display_object in self.display_objects:
-            display_object.display(self.display_surface, offset)
+            display_object.display(self, self.display_surface, offset)
 
         # Selected Objects will create a pulse in the background
         for selected_object in self.selected_objects:
-            selected_object.strobe(self.background_surface, offset, atom_strobe_width)
+            selected_object.display_selected(self, self.background_surface, offset)
 
         # Now begin with the foreground display
         # things like the commands that are being
         # currently executed.
-        for hightlighted_object in self.highlight_objects:
-            hightlighted_object.display(self.foreground_surface, offset)
+        for highlighted_object in self.highlight_objects:
+            highlighted_object.display(self, self.foreground_surface, offset)
 
         # Display background to surface first,
         # as other things drawn to the screen
