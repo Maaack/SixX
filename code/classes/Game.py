@@ -147,6 +147,9 @@ class Game:
             if (isinstance(selected, Hexagon)):
                 force_vector = (offset_point - object_middle) * force_modifier
                 selected.apply_impulse(force_vector)
+            if (isinstance(selected, Circle)):
+                force_vector = (offset_point - object_middle) * force_modifier
+                selected.apply_impulse(force_vector)
             middle_points.append(object_middle)
 
         # Get the average vector of all the objects selected
