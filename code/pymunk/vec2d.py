@@ -21,7 +21,27 @@
 # SOFTWARE.
 # ----------------------------------------------------------------------------
 
-__version__ = "$Id: vec2d.py 342 2011-11-09 15:14:40Z vb@viblo.se $"
+"""This module contain the Vec2d class that is used in all of pymunk when a 
+vector is needed.
+
+The Vec2d class is used almost everywhere in pymunk for 2d coordinates and 
+vectors, for example to define gravity vector in a space. However, pymunk is 
+smart enough to convert tuples or tuple like objects to Vec2ds so you usually 
+do not need to explcitily do conversions if you happen to have a tuple::
+
+    >>> import pymunk
+    >>> space = pymunk.Space()
+    >>> print space.gravity
+    Vec2d(0.0, 0.0)
+    >>> space.gravity = 3,5
+    >>> print space.gravity
+    Vec2d(3.0, 5.0)
+    >>> space.gravity += 2,6
+    >>> print space.gravity
+    Vec2d(5.0, 11.0)
+
+"""
+__version__ = "$Id: vec2d.py 439 2012-08-30 22:14:05Z vb@viblo.se $"
 __docformat__ = "reStructuredText"
 
 import operator
@@ -33,9 +53,9 @@ float_type = ctypes.c_double
 __all__ = ["Vec2d"]
 
 class Vec2d(ctypes.Structure):
-    """2d vector class, supports vector and scalar operators,
-       and also provides some high level functions
-       """
+    """2d vector class, supports vector and scalar operators, and also 
+    provides some high level functions.
+    """
     __slots__ = ['x', 'y']
      
     @classmethod
@@ -305,7 +325,7 @@ class Vec2d(ctypes.Structure):
         """Create and return a new vector by rotating this vector by 
         angle_radians radians.
         
-        :return: Rotade vector
+        :return: Rotated vector
         """
         cos = math.cos(angle_radians)
         sin = math.sin(angle_radians)

@@ -22,26 +22,35 @@
 # ----------------------------------------------------------------------------
 
 """A constraint is something that describes how two bodies interact with 
-each other. (how they constraint each other). Constraints can be simple 
+each other. (how they constrain each other). Constraints can be simple 
 joints that allow bodies to pivot around each other like the bones in your 
 body, or they can be more abstract like the gear joint or motors. 
+
+This submodule contain all the constraints that are supported by pymunk.
+
+Chipmunk has a good overview of the different constraint on youtube which 
+works fine to showcase them in pymunk as well. 
+http://www.youtube.com/watch?v=ZgJJZTS0aMM
+
+.. raw:: html
+    
+    <iframe width="420" height="315" style="display: block; margin: 0 auto;"
+    src="http://www.youtube.com/embed/ZgJJZTS0aMM" frameborder="0" 
+    allowfullscreen></iframe>
+    
 """
-__version__ = "$Id: constraint.py 335 2011-08-28 17:19:56Z vb@viblo.se $"
+__version__ = "$Id: constraint.py 441 2012-09-01 12:01:08Z vb@viblo.se $"
 __docformat__ = "reStructuredText"
 
 import ctypes as ct
-import pymunk._chipmunk as cp 
-import pymunk._chipmunk_ffi as cpffi 
+from . import _chipmunk as cp 
+from . import _chipmunk_ffi as cpffi 
 
 class Constraint(object):
     """Base class of all constraints. 
     
-    You usually don't want to create instances of this class directly.
-    
-    A constraint is something that describes how two bodies interact with 
-    each other. (how they constraint each other). Constraints can be simple 
-    joints that allow bodies to pivot around each other like the bones in your 
-    body, or they can be more abstract like the gear joint or motors. 
+    You usually don't want to create instances of this class directly, but 
+    instead use one of the specific constraints such as the PinJoint.
     """
     def __init__(self, constraint=None):
         self._constraint = constraint
@@ -229,12 +238,24 @@ class GrooveJoint(Constraint):
         self._pjc.anchr2 = anchr
     anchr2 = property(_get_anchr2, _set_anchr2)
     
+    def _get_groove_a(self):
+        return self._pjc.grv_a
+    groove_a = property(_get_groove_a)
+    
+    def _get_groove_b(self):
+        return self._pjc.grv_b
+    groove_b = property(_get_groove_b)
+    
 class DampedSpring(Constraint):
     """A damped spring"""
     def __init__(self, a, b, anchr1, anchr2, rest_length, stiffness, damping):
         """Defined much like a slide joint. 
         
         :Parameters:
+            anchr1 : Vec2d or (x,y)
+                Anchor point 1, relative to body a
+            anchr2 : Vec2d or (x,y)
+                Anchor point 2, relative to body b
             rest_length : float
                 The distance the spring wants to be.
             stiffness : float
