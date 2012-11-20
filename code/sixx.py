@@ -1,11 +1,9 @@
 import sys
 import pygame
 from pygame.locals import *
-from libs import *
-from classes import *
+from game import *
 
 the_interface = Interface()
-
 
 # Defining variables for fps and continued running
 

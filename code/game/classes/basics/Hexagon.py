@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # Hexagon Class
 import pygame
-import pymunk
 import math
-import libs
-from libs import *
+from game.libs import *
+from game import pymunk
 
 
 class Hexagon:
@@ -12,7 +11,8 @@ class Hexagon:
     strobe_size = 5
     game = 0
 
-    def __init__(self, mass, position, radius, angle = 0, color = ( 0, 0, 0 ), width = 1, friction = 900.0, elasticity = 0.9 ):
+    def __init__(self, atom, mass, position, radius, angle = 0, color = ( 0, 0, 0 ), width = 1, friction = 900.0, elasticity = 0.9 ):
+        self.atom = atom
         self.mass = mass
         self.position = position
         self.radius = radius
@@ -27,8 +27,11 @@ class Hexagon:
         self.body = pymunk.Body(self.mass, self.inertia)  # 2
         self.body.position = position # 3
         self.shape = pymunk.Poly(self.body, self.points)  # 4
+        self.shape.collision_type = 1
         self.shape.friction = friction
         self.shape.elasticity = elasticity
+        # Adding my custom game_object to shape for collision detection
+        self.shape.game_object = atom
 
     def point_in_shape(self, (x,y)):
         return self.shape.point_query((x,y))

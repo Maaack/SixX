@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 # Circle Class
 import pygame
-import pymunk
 import math
-import libs
-from libs import *
+from game.libs import *
+from game import pymunk
 
 class Circle:
     strobe_frequency = 2.0
     strobe_size = 5
 
-    def __init__(self, mass, position, radius, color = (255,255,255), width = 0):
+    def __init__(self, energy, mass, position, radius, color = (255,255,255), width = 0):
+        self.energy = energy
         self.position = position
         self.radius = radius
         self.color = color
@@ -21,8 +21,10 @@ class Circle:
         self.body = pymunk.Body(self.mass, self.inertia)  # 2
         self.body.position = position # 3
         self.shape = pymunk.Circle(self.body, self.radius)  # 4
+        self.shape.collision_type = 2
         self.shape.friction = 900.0
         self.shape.elasticity = 0.9
+        self.shape.game_object = energy
 
     def point_in_shape(self, (x,y)):
         return get_distance_within((x,y), self.body.position, self.radius)

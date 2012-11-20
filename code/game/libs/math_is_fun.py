@@ -1,6 +1,6 @@
 import math
 import random
-from pymunk.vec2d import Vec2d
+from ..pymunk.vec2d import Vec2d
 
 def get_hex_points(size, angle):
     sides = 6

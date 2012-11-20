@@ -1,13 +1,10 @@
 #!/usr/bin/env python
-# Game Class
-from classes import *
-from basics import *
-from elements import *
-from lines import *
-from libs import *
 import pygame
 import pymunk
 import random
+# Game Class
+from libs import *
+from classes import *
 
 class Game:
     # Going to store just about everything in...
@@ -26,14 +23,20 @@ class Game:
     display_tick = 0
     atom_strobe_frequency = 2.0
     atom_strobe_size = 5
-    atom_radius = 16
-    screen_edge_spawn_radius = 16
+    atom_radius = 10
+    screen_edge_spawn_radius = 10
+    # Game Variables
+    number_of_hexes = 60
 
-    def __init__(self, interface, number_of_hexes):
+    def __init__(self, interface):
         self.interface = interface
         screen_width, screen_height = screen_size = interface.screen_size
+
+        # Set up the physics and collision handling
+
+
         # Create the Plane that we are playing in.
-        self.plane = Plane(interface.screen_size)
+        self.plane = Plane(self, interface.screen_size)
         # Add it to the objects that display
         self.display_objects.append(self.plane)
 
@@ -41,12 +44,18 @@ class Game:
         self.foreground_surface = pygame.Surface(screen_size, pygame.SRCALPHA)
         self.background_surface = pygame.Surface(screen_size, pygame.SRCALPHA)
 
+        # Define the atom skills and colors
+        self.skill_colors = {'basic': (0 , 0, 0),
+             'align': (64, 255, 64),
+             'attack': (255, 64, 64)}
+
         # Place the player's energy on the screen
         player_color = random.choice(interface.colors)
+        self.player = Player('You', 1, 1, player_color)
         x = random.randint(self.screen_edge_spawn_radius, screen_width-self.screen_edge_spawn_radius)
         y = random.randint(self.screen_edge_spawn_radius, screen_height-self.screen_edge_spawn_radius)
         angle = get_random_angle()
-        the_energy = Energy((x,y), angle)
+        the_energy = Energy(self, self.player, (x,y))
         self.all_objects.append(the_energy.get_clickable_object())
         self.clickable_objects.append(the_energy.get_clickable_object())
         self.display_objects.append(the_energy.get_display_object())
@@ -54,12 +63,12 @@ class Game:
         self.plane.add(the_body, the_shape)
 
         # Make some atoms
-        for n in range(number_of_hexes):
+        for n in range(self.number_of_hexes):
             x = random.randint(self.atom_radius, screen_width-self.atom_radius)
             y = random.randint(self.atom_radius, screen_height-self.atom_radius)
             angle = get_random_angle()
             color = (0, 0, 0)
-            the_atom = Atom((x, y), angle, color)
+            the_atom = Atom(self, (x, y), 0, 'basic')
             self.all_objects.append(the_atom)
             self.clickable_objects.append(the_atom.get_clickable_object())
             self.display_objects.append(the_atom.get_display_object())
@@ -197,3 +206,27 @@ class Game:
     def get_time_difference(self):
         return self.real_time - self.game_time
 
+    def default_collision_func(self, space, arbiter, *args):
+        """For each contact, register the collision and figure
+        out what to do. """
+        game_objects = []
+        energy_objects = []
+        atom_objects = []
+        print len(arbiter.shapes)
+        for shape in arbiter.shapes:
+            if hasattr(shape, 'game_object'):
+                game_object = shape.game_object
+                print game_object
+                game_objects.append(game_object)
+                if isinstance(game_object, Atom):
+                    atom_objects.append(game_object)
+                elif isinstance(game_object, Energy):
+                    energy_objects.append(game_object)
+
+        if len(energy_objects) == 1 and len(atom_objects) == 1:
+            return energy_atom_collision_func(space, energy_objects[0], atom_objects[0])
+
+        if len(atom_objects) == 2:
+            return atom_atom_collision_func(space, atom_objects)
+
+        return true

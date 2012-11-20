@@ -7,10 +7,10 @@
 import pygame
 import pygame.mixer
 import random
-import pymunk
 import math
+from . import *
+from game.libs import *
 from pygame.locals import *
-from libs import *
 from Game import Game
 
 class Interface:
@@ -51,8 +51,7 @@ class Interface:
         # Setting a title to the window
         pygame.display.set_caption('SixX')
 
-        number_of_hexes = 30
-        self.game = Game(self, number_of_hexes)
+        self.game = Game(self)
 
     def click(self, point):
         return self.game.select_objects_at_point(point)

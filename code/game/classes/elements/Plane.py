@@ -1,13 +1,17 @@
 #!/usr/bin/env python
 # Plane Class
-import pymunk
-from classes.basics.Wall import *
+from game.libs import *
+from game.pymunk import *
+from game.classes.basics.Wall import *
 
 class Plane:
-    def __init__(self, (height, width), position = (0,0)):
+    def __init__(self, game, (height, width), position = (0,0)):
+        self.game = game
         self.size = (height, width)
         self.position = position
-        self.space = pymunk.Space()
+        self.space = Space()
+        self.space.set_default_collision_handler( begin = game.default_collision_func )
+
         # Gravity vector
         self.space.gravity = (0.0, 0.0)
         self.prev_step_time = 0

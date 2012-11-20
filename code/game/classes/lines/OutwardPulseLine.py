@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # Wall Class
 import pygame
-import pymunk
-from libs import *
+from game.libs import *
+import game.pymunk
 
 class OutwardPulseLine:
 

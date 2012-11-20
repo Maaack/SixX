@@ -1,12 +1,16 @@
 #!/usr/bin/env python
-# Atom Class
-import pymunk
+# Surface Class
+import pygame
+import math
+from game.libs import *
+import game.pymunk
 
 class Surface:
     def __init__(self):
         self.space = pymunk.Space()
         # Gravity vector
         # self.space.gravity = (0.0, 300.0)
+        self.space.set_default_collision_handler(default_collision_func)
 
     def display(self):
         return 0
