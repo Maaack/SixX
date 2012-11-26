@@ -11,8 +11,8 @@ class Hexagon:
     strobe_size = 5
     game = 0
 
-    def __init__(self, atom, mass, position, radius, angle = 0, color = ( 0, 0, 0 ), width = 1, friction = 900.0, elasticity = 0.9 ):
-        self.atom = atom
+    def __init__(self, game_object, mass, position, radius, angle = 0, color = ( 0, 0, 0 ), width = 1, shape = True):
+        self.container = game_object
         self.mass = mass
         self.position = position
         self.radius = radius
@@ -23,28 +23,33 @@ class Hexagon:
         self.color = color
         self.width = width
         self.points = get_hex_points(radius, angle)
+
         self.inertia = pymunk.moment_for_poly(self.mass, self.points)  # 1
         self.body = pymunk.Body(self.mass, self.inertia)  # 2
         self.body.position = position # 3
-        self.shape = pymunk.Poly(self.body, self.points)  # 4
-        self.shape.collision_type = 1
-        self.shape.friction = friction
-        self.shape.elasticity = elasticity
-        # Adding my custom game_object to shape for collision detection
-        self.shape.game_object = atom
 
-    def point_in_shape(self, (x,y)):
-        return self.shape.point_query((x,y))
+        if shape:
+            friction = 900.0
+            elasticity = 0.9
+            self.shape = pymunk.Poly(self.body, self.points)  # 4
+            self.shape.collision_type = 1
+            self.shape.friction = friction
+            self.shape.elasticity = elasticity
+            # Adding my custom game_object to shape for collision detection
+            self.shape.game_object = game_object
+        else:
+            self.shape = None
 
     def display(self, game, screen, offset = (0,0)):
-        points = self.get_points()
-        offset_points = []
-        for point in points:
-            offset_points.append((pymunk.Vec2d(point) + pymunk.Vec2d(offset)))
-        pygame.draw.polygon(screen, self.color, offset_points, self.width)
+        angle = self.body.angle
+        position = self.body.position
+        points_floats = get_hex_points(self.radius,angle,position)
+        points = []
+        for point in points_floats:
+            x, y = point
+            points.append((round(x), round(y)))
+        pygame.draw.polygon(screen, self.color, points, self.width)
 
-    def display_selected(self, game, screen, offset = (0,0)):
-        self.strobe(game, screen, offset)
 
     def strobe(self, game, screen, offset = (0,0)):
         strobe_width = interval_triangle_wave(game.real_time, self.strobe_frequency, self.strobe_size)
@@ -63,25 +68,12 @@ class Hexagon:
         self.points = points
         return self.points
 
+    def attach_object(self, other):
+        pymunk.constraint.PinJoint(self, other)
+
     def get_display_object(self):
         return self
 
-    def get_clickable_object(self):
-        return self
-
-    def apply_force(self, f, r = (0,0)):
-        vector = pymunk.Vec2d(f)
-        self.body.apply_force(vector, r)
-
-    def apply_impulse(self, j, r=(0, 0)):
-        vector = pymunk.Vec2d(j)
-        self.body.apply_impulse(vector, r)
-
-    def get_body(self):
-        return self.body, self.shape
-
-    def get_shape(self):
-        return self.shape
 
     # Just for debugging
     def __str__(self):

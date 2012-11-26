@@ -59,6 +59,8 @@ class Interface:
     def command(self, point):
         return self.game.move_selected(point)
 
+    def hover(self, point):
+        return self.game.hover_over_point(point)
 
     def step(self):
         # Get any user input
@@ -83,6 +85,8 @@ class Interface:
 
             if event.type == pygame.MOUSEMOTION:
                 mouse_pos = mouse_x, mouse_y = event.pos
+                self.hover(mouse_pos)
+
 
         # No longer checking for pygame events.
 

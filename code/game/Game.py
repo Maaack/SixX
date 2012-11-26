@@ -14,8 +14,11 @@ class Game:
     # through in the display section of the main loop
     display_objects = []
     selected_objects = []
-    clickable_objects = []
     highlight_objects = []
+    hoverable_objects = []
+    hovering_objects = []
+    player_characters = []
+    non_player_characters = []
     # Clocks
     game_time = 0
     real_time = 0
@@ -30,7 +33,7 @@ class Game:
 
     def __init__(self, interface):
         self.interface = interface
-        screen_width, screen_height = screen_size = interface.screen_size
+        self.screen_width, self.screen_height = screen_size = interface.screen_size
 
         # Set up the physics and collision handling
 
@@ -45,59 +48,58 @@ class Game:
         self.background_surface = pygame.Surface(screen_size, pygame.SRCALPHA)
 
         # Define the atom skills and colors
+        self.skills_list = ('basic', 'harvest', 'attack')
+
         self.skill_colors = {'basic': (0 , 0, 0),
              'align': (64, 255, 64),
              'attack': (255, 64, 64)}
 
+        self.atom_mass = 100
+        self.atom_max_charge = 100
+
+        # Define the energy properties for the game
+        self.energy_mass = 1
+        self.energy_density = 0.5
+
         # Place the player's energy on the screen
         player_color = random.choice(interface.colors)
         self.player = Player('You', 1, 1, player_color)
-        x = random.randint(self.screen_edge_spawn_radius, screen_width-self.screen_edge_spawn_radius)
-        y = random.randint(self.screen_edge_spawn_radius, screen_height-self.screen_edge_spawn_radius)
-        angle = get_random_angle()
-        the_energy = Energy(self, self.player, (x,y))
-        self.all_objects.append(the_energy.get_clickable_object())
-        self.clickable_objects.append(the_energy.get_clickable_object())
-        self.display_objects.append(the_energy.get_display_object())
-        the_body, the_shape = the_energy.circle.get_body()
-        self.plane.add(the_body, the_shape)
+        self.player_characters.append(self.player)
+        self.newEnergy(self.player, 100)
 
         # Make some atoms
         for n in range(self.number_of_hexes):
-            x = random.randint(self.atom_radius, screen_width-self.atom_radius)
-            y = random.randint(self.atom_radius, screen_height-self.atom_radius)
-            angle = get_random_angle()
-            color = (0, 0, 0)
-            the_atom = Atom(self, (x, y), 0, 'basic')
-            self.all_objects.append(the_atom)
-            self.clickable_objects.append(the_atom.get_clickable_object())
-            self.display_objects.append(the_atom.get_display_object())
-            the_body, the_shape = the_atom.hexagon.get_body()
-            self.plane.add(the_body, the_shape)
+            self.newAtom('basic', False, 0)
 
     def select_objects_at_point(self, point):
         action_taken = False
         deselected_objects = []
         for i, selected in enumerate(self.selected_objects):
-            if (selected.point_in_shape(point)):
+            if (hasattr(selected, 'is_deselected') and selected.is_deselected(point)):
                 action_taken = True
                 self.selected_objects.pop(i)
                 deselected_objects.append(selected)
 
-        clickable_objects_r = list(self.clickable_objects)
-        clickable_objects_r.reverse()
-        for clickable in clickable_objects_r:
-            deselected = 0
-            for deselected in deselected_objects:
-                if (clickable == deselected):
-                    deselected = 1
-                    break
-            if (deselected):
-                continue
-            if (clickable.point_in_shape(point)):
-                action_taken = True
-                self.selected_objects.append(clickable)
+        all_objects_r = list(self.all_objects)
+        all_objects_r.reverse()
+        if not action_taken:
+            for object in all_objects_r:
+                if object in deselected_objects:
+                    continue
+
+                if (hasattr(object, 'is_selected') and object.is_selected(point)):
+                    action_taken = True
+                    self.selected_objects.append(object)
         return action_taken
+
+    def hover_over_point(self, point, offset = (0,0)):
+        self.hovering_objects = []
+        for i, object in enumerate(self.all_objects):
+            if hasattr(object, 'is_hovering'):
+                if (object.is_hovering(point)):
+                    object.display_selected(self, self.background_surface, offset)
+                    self.hovering_objects.append(object)
+
 
 
     def step(self, d_game_time, d_real_time):
@@ -115,17 +117,38 @@ class Game:
         # Display all the objects in the display
         # objects list.  Usually Hexagons.
         for display_object in self.display_objects:
-            display_object.display(self, self.display_surface, offset)
+            if hasattr(display_object, "get_display_object"):
+                display_object = display_object.get_display_object()
+            if hasattr(display_object, "display"):
+                display_object.display(self, self.display_surface, offset)
+            else:
+                print str(display_object) + " has no method 'display'"
 
         # Selected Objects will create a pulse in the background
         for selected_object in self.selected_objects:
-            selected_object.display_selected(self, self.background_surface, offset)
+            if hasattr(selected_object, "get_display_object"):
+                selected_object = selected_object.get_display_object()
+            if hasattr(selected_object, "display_selected"):
+                selected_object.display_selected(self, self.background_surface, offset)
+            else:
+                print str(selected_object) + " has no method 'display_selected'"
+
+        for hovering_object in self.hovering_objects:
+            if hasattr(hovering_object, "get_display_object"):
+                hovering_object = hovering_object.get_display_object()
+            if hasattr(hovering_object, "display_hovering"):
+                hovering_object.display_hovering(self, self.background_surface, offset)
+            else:
+                print str(hovering_object) + " has no method 'display_hovering'"
 
         # Now begin with the foreground display
         # things like the commands that are being
         # currently executed.
         for highlighted_object in self.highlight_objects:
-            highlighted_object.display(self, self.foreground_surface, offset)
+            if hasattr(highlighted_object, "display"):
+                highlighted_object.display(self, self.foreground_surface, offset)
+            else:
+                print str(highlighted_object) + " has no method 'display'"
 
         # Display background to surface first,
         # as other things drawn to the screen
@@ -146,20 +169,19 @@ class Game:
         main_line_delay = 8
         middle_points = []
         for selected in self.selected_objects:
-            position = pymunk.Vec2d(selected.body.position)
-            object_middle = position - offset
-            # If the selected object is of type Hexagon
-            # then we will try to apply force.
-            # This will be replaced in the future with a
-            # more generic solution.
-            force_modifier = 30.0
-            if (isinstance(selected, Hexagon)):
+            if hasattr(selected, "get_movable_object"):
+                movable = selected.get_movable_object()
+
+                position = pymunk.Vec2d(movable.position)
+                object_middle = position - offset
+                # If the selected object is of type Hexagon
+                # then we will try to apply force.
+                # This will be replaced in the future with a
+                # more generic solution.
+                force_modifier = 30.0
                 force_vector = (offset_point - object_middle) * force_modifier
-                selected.apply_impulse(force_vector)
-            if (isinstance(selected, Circle)):
-                force_vector = (offset_point - object_middle) * force_modifier
-                selected.apply_impulse(force_vector)
-            middle_points.append(object_middle)
+                movable.apply_impulse(pymunk.Vec2d(force_vector))
+                middle_points.append(object_middle)
 
         # Get the average vector of all the objects selected
         # or in other words, the groups most middle point.
@@ -177,6 +199,45 @@ class Game:
             the_line.set_display_delay(main_line_delay)
 
         self.highlight_objects.append(the_line)
+
+    def newEnergy(self, PlayerObject, amount = 100, position = False):
+        if isinstance(PlayerObject, Player):
+            if PlayerObject not in self.player_characters:
+                self.player_characters.append(PlayerObject)
+            """
+            elif isinstance(player, NonPlayer):
+                if player not in self.non_player_characters:
+                    self.non_player_characters.append(player)
+            """
+        else:
+            raise Exception("Not a valid type for a player!")
+
+        if ( position == False or len(position) != 2 ):
+            x = random.randint(self.screen_edge_spawn_radius, self.screen_width-self.screen_edge_spawn_radius)
+            y = random.randint(self.screen_edge_spawn_radius, self.screen_height-self.screen_edge_spawn_radius)
+            position = x,y
+
+
+        the_energy = Energy(self, PlayerObject, position)
+        return the_energy
+
+    def newAtom(self, skill, position = False, angle = -1):
+        if ( position == False or len(position) != 2 ):
+            x = random.randint(self.screen_edge_spawn_radius, self.screen_width-self.screen_edge_spawn_radius)
+            y = random.randint(self.screen_edge_spawn_radius, self.screen_height-self.screen_edge_spawn_radius)
+            position = x,y
+
+        if (angle < 0 or angle > math.pi*2):
+            angle = get_random_angle()
+
+        if (skill == False):
+            skill = 'basic'
+
+        the_atom = Atom(self, position, angle, skill)
+        return the_atom
+
+    def drop_object_from_space(self, bye_bye):
+        self.plane.remove(bye_bye)
 
     def drop_highlights(self):
         self.highlight_objects = []
@@ -209,24 +270,44 @@ class Game:
     def default_collision_func(self, space, arbiter, *args):
         """For each contact, register the collision and figure
         out what to do. """
-        game_objects = []
-        energy_objects = []
-        atom_objects = []
-        print len(arbiter.shapes)
+        GameObjects = []
+        EnergyObjects = []
+        ChargeObjects = []
+        AtomObjects = []
         for shape in arbiter.shapes:
             if hasattr(shape, 'game_object'):
                 game_object = shape.game_object
-                print game_object
-                game_objects.append(game_object)
+                GameObjects.append(game_object)
                 if isinstance(game_object, Atom):
-                    atom_objects.append(game_object)
+                    AtomObjects.append(game_object)
                 elif isinstance(game_object, Energy):
-                    energy_objects.append(game_object)
+                    EnergyObjects.append(game_object)
+                elif isinstance(game_object, Charge):
+                    ChargeObjects.append(game_object)
 
-        if len(energy_objects) == 1 and len(atom_objects) == 1:
-            return energy_atom_collision_func(space, energy_objects[0], atom_objects[0])
 
-        if len(atom_objects) == 2:
-            return atom_atom_collision_func(space, atom_objects)
+        if len(EnergyObjects) == 1 and len(AtomObjects) == 1:
+            return self.energy_atom_collision_func(EnergyObjects[0], AtomObjects[0])
 
-        return true
+        if len(AtomObjects) == 2:
+            return self.atom_atom_collision_func(AtomObjects)
+
+        return True
+
+    def energy_atom_collision_func(self, EnergyObject, AtomObject):
+        AtomObject.add_charge(EnergyObject)
+        return False
+
+    def atom_atom_collision_func(self, AtomObjects):
+        return True
+
+
+    def drop_Object(self, GameObject):
+        if GameObject in self.all_objects:
+            self.all_objects.remove(GameObject)
+        if GameObject in self.hoverable_objects:
+            self.hoverable_objects.remove(GameObject)
+        if GameObject in self.selected_objects:
+            self.selected_objects.remove(GameObject)
+        if GameObject in self.display_objects:
+            self.display_objects.remove(GameObject)

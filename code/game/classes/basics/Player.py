@@ -9,3 +9,9 @@ class Player:
         self.team_number = team_number
         self.color = color
         self.color2 = color2
+
+    def __eq__(self, other):
+        return self.number == other.number
+
+    def __ne__(self, other):
+        return self.number != other.number

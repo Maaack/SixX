@@ -10,7 +10,7 @@ class Plane:
         self.size = (height, width)
         self.position = position
         self.space = Space()
-        self.space.set_default_collision_handler( begin = game.default_collision_func )
+        self.space.set_default_collision_handler( begin = game.default_collision_func, pre_solve = game.default_collision_func )
 
         # Gravity vector
         self.space.gravity = (0.0, 0.0)
@@ -37,7 +37,8 @@ class Plane:
 
     def add(self, *args):
         for arg in args:
-            self.space.add(arg)
+            if not isinstance(arg, IntType) and not isinstance(arg, NoneType):
+                self.space.add_post_step_callback(self.space.add, arg)
 
     def display(self, game, screen, offset = (0,0)):
         for wall in self.walls:
@@ -49,6 +50,10 @@ class Plane:
         self.next_step_time = step
         return self.prev_step_time
 
+    def remove(self, *args):
+        for arg in args:
+            if not isinstance(arg, IntType) and not isinstance(arg, NoneType):
+                self.space.add_post_step_callback(self.space.remove, arg)
 
     # Just for debugging
     def __str__(self):

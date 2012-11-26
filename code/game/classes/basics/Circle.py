@@ -26,8 +26,14 @@ class Circle:
         self.shape.elasticity = 0.9
         self.shape.game_object = energy
 
-    def point_in_shape(self, (x,y)):
-        return get_distance_within((x,y), self.body.position, self.radius)
+    def get_radius(self):
+        return self.radius
+
+    def get_angle(self):
+        return self.body.angle
+
+    def get_position(self):
+        return self.body.position
 
     def display(self, game, screen, offset = (0,0)):
         point = pymunk.Vec2d(self.body.position)
@@ -45,6 +51,9 @@ class Circle:
     def display_selected(self, game, screen, offset = (0,0)):
         self.pulse(game, screen, offset)
 
+    def display_hovering(self, game, screen, offset = (0,0)):
+        return True
+
     def pulse(self, game, screen, offset = (0,0)):
         strobe_width = interval_triangle_wave(game.real_time, self.strobe_frequency, self.strobe_size)
         width = int(strobe_width)
@@ -58,17 +67,3 @@ class Circle:
 
     def get_display_object(self):
         return self
-
-    def get_clickable_object(self):
-        return self
-
-    def apply_force(self, f, r = (0,0)):
-        vector = pymunk.Vec2d(f)
-        self.body.apply_force(vector, r)
-
-    def apply_impulse(self, j, r=(0, 0)):
-        vector = pymunk.Vec2d(j)
-        self.body.apply_impulse(vector, r)
-
-    def get_body(self):
-        return self.body, self.shape

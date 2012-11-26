@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # Wall Class
 import pygame
-from game.libs import *
 from game import pymunk
+from game.libs import *
 
 class FadeInLine:
 

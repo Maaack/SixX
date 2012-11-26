@@ -2,19 +2,25 @@ import math
 import random
 from ..pymunk.vec2d import Vec2d
 
-def get_hex_points(size, angle):
+def get_hex_points(size, angle, offset = (0,0)):
     sides = 6
     points = range(1,sides+1)
+    offset_x, offset_y = offset
     for i, value in enumerate(points):
          p_angle = (2 * math.pi * value / sides) + angle
-         x = math.cos(p_angle) * size
-         y = math.sin(p_angle) * size
+         x = (math.cos(p_angle) * size) + offset_x
+         y = (math.sin(p_angle) * size) + offset_y
          points[i] = x, y
     return points
 
 def get_hex_area(radius):
     area = ( 3 * math.sqrt( 3 ) / 2 ) * ( radius ** 2 )
     return area
+
+def get_circle_surface_area_diff(radius_1, radius_2):
+    area_1 = math.pi * (radius_1 ** 2)
+    area_2 = math.pi * (radius_2 ** 2)
+    return area_1 - area_2
 
 def get_random_vector():
     the_angle = get_random_angle()
@@ -25,6 +31,7 @@ def get_random_vector():
     return the_vector
 
 def get_random_angle():
+    # In radians
     return random.uniform(0, math.pi*2)
 
 def get_distance_within((x1,y1), (x2, y2), max_distance):

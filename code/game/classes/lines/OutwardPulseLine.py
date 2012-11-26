@@ -2,7 +2,7 @@
 # Wall Class
 import pygame
 from game.libs import *
-import game.pymunk
+from game import pymunk
 
 class OutwardPulseLine:
 
