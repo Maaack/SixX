@@ -67,7 +67,6 @@ class Charge:
 
     def destroy_Hexagon(self):
         if isinstance(self.hexagon, Hexagon):
-            print "-- Charge --"
             self._Plane.remove(self.hexagon.body)
             self.hexagon = None
 

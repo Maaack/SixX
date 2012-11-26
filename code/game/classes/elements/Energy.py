@@ -76,7 +76,6 @@ class Energy:
 
     def destroyCircle(self):
         if isinstance(self.circle, Circle):
-            print "-- Energy --"
             self._Plane.remove(self.circle.body, self.circle.shape)
             self.circle = None
 
