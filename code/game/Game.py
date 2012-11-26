@@ -59,7 +59,7 @@ class Game:
 
         # Define the energy properties for the game
         self.energy_mass = 1
-        self.energy_density = 0.5
+        self.energy_density = 5
 
         # Place the player's energy on the screen
         player_color = random.choice(interface.colors)
@@ -305,8 +305,8 @@ class Game:
     def drop_Object(self, GameObject):
         if GameObject in self.all_objects:
             self.all_objects.remove(GameObject)
-        if GameObject in self.hoverable_objects:
-            self.hoverable_objects.remove(GameObject)
+        if GameObject in self.hovering_objects:
+            self.hovering_objects.remove(GameObject)
         if GameObject in self.selected_objects:
             self.selected_objects.remove(GameObject)
         if GameObject in self.display_objects:

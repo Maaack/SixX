@@ -9,8 +9,9 @@ class Circle:
     strobe_frequency = 2.0
     strobe_size = 5
 
-    def __init__(self, energy, mass, position, radius, color = (255,255,255), width = 0):
-        self.energy = energy
+    def __init__(self, PlaneObject, ElementObject, mass, position, radius, color = (255,255,255), width = 0):
+        self._Element = ElementObject
+        self._Plane = PlaneObject
         self.position = position
         self.radius = radius
         self.color = color
@@ -24,16 +25,16 @@ class Circle:
         self.shape.collision_type = 2
         self.shape.friction = 900.0
         self.shape.elasticity = 0.9
-        self.shape.game_object = energy
+        self.shape.game_object = ElementObject
 
-    def get_radius(self):
-        return self.radius
+    def destroy(self):
+        if isinstance(self.body, pymunk.Body):
+            self._Plane.remove(self.body)
+            self.body = None
 
-    def get_angle(self):
-        return self.body.angle
-
-    def get_position(self):
-        return self.body.position
+        if isinstance(self.shape, pymunk.Shape):
+            self._Plane.remove(self.shape)
+            self.shape = None
 
     def display(self, game, screen, offset = (0,0)):
         point = pymunk.Vec2d(self.body.position)

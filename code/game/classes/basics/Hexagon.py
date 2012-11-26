@@ -11,8 +11,9 @@ class Hexagon:
     strobe_size = 5
     game = 0
 
-    def __init__(self, game_object, mass, position, radius, angle = 0, color = ( 0, 0, 0 ), width = 1, shape = True):
-        self.container = game_object
+    def __init__(self, PlaneObject, ElementObject, mass, position, radius, angle = 0, color = ( 0, 0, 0 ), width = 1, shape = True):
+        self._Element = ElementObject
+        self._Plane = PlaneObject
         self.mass = mass
         self.position = position
         self.radius = radius
@@ -36,8 +37,17 @@ class Hexagon:
             self.shape.friction = friction
             self.shape.elasticity = elasticity
             # Adding my custom game_object to shape for collision detection
-            self.shape.game_object = game_object
+            self.shape.game_object = ElementObject
         else:
+            self.shape = None
+
+    def destroy(self):
+        if isinstance(self.body, pymunk.Body):
+            self._Plane.remove(self.body)
+            self.body = None
+
+        if isinstance(self.shape, pymunk.Shape):
+            self._Plane.remove(self.shape)
             self.shape = None
 
     def display(self, game, screen, offset = (0,0)):

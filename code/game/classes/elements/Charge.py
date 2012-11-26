@@ -57,7 +57,7 @@ class Charge:
 
         self._charge = charge
         self._radius = radius = scale * atom_radius
-        self.hexagon = Hexagon(self, charge, position, radius, angle, color, 0, False)
+        self.hexagon = Hexagon(self._Plane, self, charge, position, radius, angle, color, 0, False)
 
     def get_display_object(self):
         return self
@@ -67,7 +67,7 @@ class Charge:
 
     def destroy_Hexagon(self):
         if isinstance(self.hexagon, Hexagon):
-            self._Plane.remove(self.hexagon.body)
+            self.hexagon.destroy()
             self.hexagon = None
 
 

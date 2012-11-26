@@ -73,11 +73,11 @@ class Atom:
             if isinstance(ChargeObject, Charge):
                 self._Charge = ChargeObject
 
-        self._energy_capacity = 100
-        self._energy_transfer = 10
+        self._energy_capacity = 1000
+        self._energy_transfer = 1
         self._energy_transfer_modifier = 1.0
 
-        self.hexagon = Hexagon(self, mass, position, radius, angle, color, 2)
+        self.hexagon = Hexagon(self._Plane, self, mass, position, radius, angle, color, 2)
         self._Plane.add(self.hexagon.body, self.hexagon.shape)
 
     def get_physical_object(self):

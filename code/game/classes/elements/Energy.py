@@ -9,7 +9,7 @@ from game.classes.basics.Player import Player
 class Energy:
     circle = 0
 
-    def __init__(self, GameObject, PlayerObject, position, energy = 100):
+    def __init__(self, GameObject, PlayerObject, position, energy = 1000):
         # Checking all inputs to be expected classes.
         if not isinstance(GameObject, game.Game):
             raise Exception("Not a valid type " + str(GameObject) +  " for a Game in " + str(self) + " !")
@@ -70,13 +70,12 @@ class Energy:
         return True
 
     def destroy(self):
-        self.destroyCircle()
+        self.destroy_Circle()
         self._Game.drop_Object(self)
 
-
-    def destroyCircle(self):
+    def destroy_Circle(self):
         if isinstance(self.circle, Circle):
-            self._Plane.remove(self.circle.body, self.circle.shape)
+            self.circle.destroy()
             self.circle = None
 
 
@@ -106,8 +105,8 @@ class Energy:
             force = self.circle.body.force
         else:
             force = (0,0)
-        self.destroyCircle()
-        self.circle = Circle(self, mass, position, radius, color)
+        self.destroy_Circle()
+        self.circle = Circle(self._Plane, self, mass, position, radius, color)
         self._Plane.add(self.circle.body, self.circle.shape)
         self.circle.body.apply_force(force)
 
