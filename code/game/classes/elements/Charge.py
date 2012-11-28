@@ -14,13 +14,14 @@ because of the limitation of Chipmunk not handling
 objects changing mass spontaneously. :-(
 
 """
-from types import *
 import game
+import Atom
+from game.classes.basics.Pin import Pin
 from game.classes.basics.Hexagon import Hexagon
 from game.classes.basics.Player import Player
-import Atom
+from game.classes.elements.Element import Element
 
-class Charge:
+class Charge(Element):
 
     def __init__(self, GameObject, PlayerObject, AtomObject, charge, scale = 1.0):
         # Checking all inputs to be expected classes.
@@ -55,27 +56,37 @@ class Charge:
         elif scale < 0.0:
             scale = 0.0
 
+        self._Atom_Pin = None
         self._charge = charge
         self._radius = radius = scale * atom_radius
-        self.hexagon = Hexagon(self._Plane, self, charge, position, radius, angle, color, 0, False)
+        self.BasicObject = self._Hexagon = Hexagon(self._Plane, self, charge, position, radius, angle, color, 0, False)
+        self._Plane.add(self.BasicObject.body)
 
     def get_display_object(self):
         return self
 
-    def destroy(self):
-        self.destroy_Hexagon()
+    def destroy_Basic(self):
+        if hasattr(self._Atom_Pin, 'destroy'):
+            self._Atom_Pin.destroy()
+        self._Atom_Pin = None
 
-    def destroy_Hexagon(self):
-        if isinstance(self.hexagon, Hexagon):
-            self.hexagon.destroy()
-            self.hexagon = None
-
+        if hasattr(self.BasicObject, 'destroy'):
+            self.BasicObject.destroy()
+        self.BasicObject = None
 
     def display(self, game, screen, offset = (0,0)):
-        self.hexagon.display(game, screen, offset)
+        self.BasicObject.display(game, screen, offset)
 
     def get_charge(self):
         return self._charge
 
+    def _set_charge(self):
+        return self._charge
+
+
     def get_Player(self):
         return self._Player
+
+    def add_Pin(self, PinObject):
+        if isinstance(PinObject, Pin):
+            self._Atom_Pin = PinObject

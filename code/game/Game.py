@@ -3,8 +3,8 @@ import pygame
 import pymunk
 import random
 # Game Class
-from libs import *
-from classes import *
+from game.libs import *
+from game.classes import *
 
 class Game:
     # Going to store just about everything in...
@@ -60,6 +60,8 @@ class Game:
         # Define the energy properties for the game
         self.energy_mass = 1
         self.energy_density = 5
+        self.energy_transfer = 2
+        self.energy_capacity = 1000
 
         # Place the player's energy on the screen
         player_color = random.choice(interface.colors)
@@ -171,17 +173,18 @@ class Game:
         for selected in self.selected_objects:
             if hasattr(selected, "get_movable_object"):
                 movable = selected.get_movable_object()
-
-                position = pymunk.Vec2d(movable.position)
-                object_middle = position - offset
-                # If the selected object is of type Hexagon
-                # then we will try to apply force.
-                # This will be replaced in the future with a
-                # more generic solution.
-                force_modifier = 30.0
-                force_vector = (offset_point - object_middle) * force_modifier
-                movable.apply_impulse(pymunk.Vec2d(force_vector))
-                middle_points.append(object_middle)
+                if isinstance(movable, pymunk.Body):
+                    position = pymunk.Vec2d(movable.position)
+                    object_middle = position - offset
+                    # If the selected object is of type Hexagon
+                    # then we will try to apply force.
+                    # This will be replaced in the future with a
+                    # more generic solution.
+                    force_modifier = 2.0 / (1 / movable.mass)
+                    force_vector = (offset_point - object_middle) * force_modifier
+                    force_vector = force_vector
+                    movable.apply_impulse(pymunk.Vec2d(force_vector))
+                    middle_points.append(object_middle)
 
         # Get the average vector of all the objects selected
         # or in other words, the groups most middle point.
@@ -295,7 +298,7 @@ class Game:
         return True
 
     def energy_atom_collision_func(self, EnergyObject, AtomObject):
-        AtomObject.add_charge(EnergyObject)
+        AtomObject.contact_Energy(EnergyObject)
         return False
 
     def atom_atom_collision_func(self, AtomObjects):

@@ -5,9 +5,9 @@ import game
 from game.libs import *
 from game.classes.basics.Circle import Circle
 from game.classes.basics.Player import Player
+from game.classes.elements.Element import Element
 
-class Energy:
-    circle = 0
+class Energy(Element):
 
     def __init__(self, GameObject, PlayerObject, position, energy = 1000):
         # Checking all inputs to be expected classes.
@@ -38,84 +38,72 @@ class Energy:
 
         self._energy_mass = GameObject.energy_mass
         self._energy_density = GameObject.energy_density
+        self._energy_transfer = GameObject.energy_transfer
         self._color = PlayerObject.color
-        self._energy = energy
-        self._reset_energy(energy)
+        self._energy_mass_modifier = 1.0
+        self._energy_density_modifier = 1.0
+        self._energy_transfer_modifier = 10.0
+        self._energy = 0
+        self._set_energy(energy)
 
-        self._energy_transfer = 1
-        self._energy_transfer_modifier = 1.0
 
-    def get_physical_object(self):
-        return self.circle.body
-
-    def get_movable_object(self):
-        return self.get_physical_object()
 
     def display(self, game, screen, offset = (0,0)):
-        self.circle.display(game,screen,offset)
+        self.BasicObject.display(game,screen,offset)
 
     def is_selected(self, position):
-        return get_distance_within(position, self.circle.body.position, self._radius)
+        return get_distance_within(position, self.BasicObject.body.position, self._radius)
 
     def is_deselected(self, position):
-        return get_distance_within(position, self.circle.body.position, self._radius)
+        return get_distance_within(position, self.BasicObject.body.position, self._radius)
 
     def display_selected(self, game, screen, offset = (0,0)):
-        if self.circle == None:
+        if self.BasicObject == None:
             print "Display_selected when none"
             return False
-        self.circle.pulse(game, screen, offset)
+        self.BasicObject.pulse(game, screen, offset)
 
     def display_hovering(self, game, screen, offset = (0,0)):
         return True
 
-    def destroy(self):
-        self.destroy_Circle()
-        self._Game.drop_Object(self)
+    def _set_Circle(self, mass, position, radius, color):
+        if isinstance(self.BasicObject, Circle):
+            velocity = self.BasicObject.body.velocity
+            self.destroy_Basic()
+        else:
+            velocity = (0,0)
+        self.BasicObject = self._Circle = Circle(self._Plane, self, mass, position, radius, color)
+        self._Plane.add(self.BasicObject.body, self.BasicObject.shape)
+        self.BasicObject.body.velocity = velocity
 
-    def destroy_Circle(self):
-        if isinstance(self.circle, Circle):
-            self.circle.destroy()
-            self.circle = None
 
+    def get_Player(self):
+        return self._Player
+
+    def _get_energy(self):
+        return self._energy
 
     def _set_energy(self, energy):
-        if self._energy != energy:
-            self._reset_energy(energy)
-
-    def _reset_energy(self, energy = 0):
-        old_energy = self._energy
         self._energy = energy
         if energy > 0:
             self._mass = mass = self._energy_mass * energy
             self._area = area = energy / self._energy_density
             self._radius = radius = math.sqrt(area / math.pi)
             color = self._Player.color
-            if isinstance(self.circle, Circle):
-                self._position = position = self.circle.body.position
+            if isinstance(self.BasicObject, Circle):
+                self._position = position = self.BasicObject.body.position
             else:
                 position = self._position
-            self._makeCircle(mass, position, radius, color)
+            self._set_Circle(mass, position, radius, color)
         else:
             self.destroy()
 
+    energy = property(_get_energy, _set_energy)
 
-    def _makeCircle(self, mass, position, radius, color):
-        if isinstance(self.circle, Circle):
-            force = self.circle.body.force
-        else:
-            force = (0,0)
-        self.destroy_Circle()
-        self.circle = Circle(self._Plane, self, mass, position, radius, color)
-        self._Plane.add(self.circle.body, self.circle.shape)
-        self.circle.body.apply_force(force)
+    def _get_mass(self):
+        return self._mass
 
-
-    def get_Player(self):
-        return self._Player
-
-    def get_energy(self):
-        return self._energy
+    mass = property(_get_mass)
 
     def transfer_energy(self, energy):
         max_transferable_energy = self._energy_transfer * self._energy_transfer_modifier

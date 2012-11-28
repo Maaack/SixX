@@ -12,16 +12,16 @@ Aligning an atom... hmmm...
 
 
 """
-import math
-from types import *
 import game
 from game.classes.basics.Hexagon import Hexagon
 from game.classes.basics.Player import Player
+from game.classes.basics.Pin import Pin
 from game.classes.elements.Charge import Charge
 from game.classes.elements.Energy import Energy
 from game.classes.elements.Shell import Shell
+from game.classes.elements.Element import Element
 
-class Atom:
+class Atom(Element):
 
     def __init__(self, GameObject, position, angle, skill = 'basic', *args, **kwargs):
         # Checking all inputs to be expected classes.
@@ -54,9 +54,10 @@ class Atom:
         GameObject.display_objects.append(self)
 
         self._angle = angle
-        self._Player = 0
-        self._Shell = 0
-        self._Charge = 0
+        self._Player = None
+        self._Shell = None
+        self._Charge = None
+        self._Charge_Pin = None
 
         if 'PlayerObject' in kwargs:
             PlayerObject = kwargs['PlayerObject']
@@ -73,44 +74,25 @@ class Atom:
             if isinstance(ChargeObject, Charge):
                 self._Charge = ChargeObject
 
-        self._energy_capacity = 1000
-        self._energy_transfer = 1
-        self._energy_transfer_modifier = 1.0
+        self._energy_capacity = GameObject.energy_capacity
+        self._energy_transfer = GameObject.energy_transfer
+        self._energy_transfer_modifier = 10.0
 
-        self.hexagon = Hexagon(self._Plane, self, mass, position, radius, angle, color, 2)
-        self._Plane.add(self.hexagon.body, self.hexagon.shape)
-
-    def get_physical_object(self):
-        return self.circle.body
+        self.BasicObject = self._Hexagon = Hexagon(self._Plane, self, mass, position, radius, angle, color, 2)
+        self._Plane.add(self.BasicObject.body, self.BasicObject.shape)
 
     def get_movable_object(self):
         if isinstance(self._Charge, Charge):
-            return self._Charge.body
+            return self._Charge.get_physical_object()
 
     def get_radius(self):
         return self._radius
 
-    def get_angle(self):
-        return self.hexagon.body.angle
-
-    def get_position(self):
-        return self.hexagon.body.position
-
-    def is_hovering(self, position):
-        return self.hexagon.shape.point_query(position)
-
-    def is_selected(self, position):
-        return False
-        #return self.hexagon.shape.point_query(position)
-
-    def is_deselected(self, position):
-        return self.hexagon.shape.point_query(position)
-
     def destroy(self):
-        self._Plane.remove(self.hexagon.body, self.hexagon.shape)
+        self._Plane.remove(self.BasicObject.body, self.BasicObject.shape)
 
     def display(self, game, screen, offset = (0,0)):
-        self.hexagon.display(game, screen, offset)
+        self.BasicObject.display(game, screen, offset)
         if isinstance(self._Charge, Charge):
             self._Charge.display(game, screen, offset)
 
@@ -118,18 +100,19 @@ class Atom:
             self._Shell.display(game, screen, offset)
 
     def display_selected(self, game, screen, offset = (0,0)):
-        self.hexagon.strobe(game, screen, offset)
+        self.BasicObject.strobe(game, screen, offset)
 
     def display_hovering(self, game, screen, offset = (0,0)):
-        self.hexagon.strobe(game, screen, offset)
+        self.BasicObject.strobe(game, screen, offset)
 
-    def add_charge(self, EnergyObject):
+    def contact_Energy(self, EnergyObject):
         if not isinstance(EnergyObject, Energy):
             raise Exception("Not a valid type " + str(EnergyObject) +  " for a Energy in " + str(self) + " !")
 
         player = EnergyObject.get_Player()
-        energy = EnergyObject.get_energy()
 
+        physical_object = EnergyObject.get_physical_object()
+        force = physical_object.force
 
         if isinstance(self._Charge, Charge):
             current_energy = self._Charge.get_charge()
@@ -149,10 +132,13 @@ class Atom:
             energy = EnergyObject.transfer_energy(max_transferable_energy)
             total_energy = energy + current_energy
             self._set_charge(player, total_energy)
+#            energy_mass = self._Game.energy_mass
+#            self.hexagon.body.apply_force(force)
+
 
 
     def _set_charge(self, player, energy):
-        if energy < 0:
+        if energy <= 0:
             self.destroy_Charge()
             return True
 
@@ -165,7 +151,8 @@ class Atom:
         # now depending on the amount of energy.
         self.destroy_Charge()
         scale = energy / self._energy_capacity
-        self._Charge = Charge(self._Game, player, self, energy, scale)
+        self._Charge = charge = Charge(self._Game, player, self, energy, scale)
+        self._Charge_Pin = Pin(self._Game, self, charge)
         return self._Charge
 
     def _create_Shell(self, PlayerObject):
@@ -208,12 +195,8 @@ class Atom:
     def destroy_Charge(self):
         if isinstance(self._Charge, Charge):
             self._Charge.destroy()
-            self._Charge = 0
+            self._Charge = None
 
-    def contact_energy(self, energy):
-        if self._Player == 0:
-            self._Player = energy.get_Player()
-            self.add_charge(energy)
-
-        elif self._Player == energy.get_Player():
-            self.add_charge(energy)
+    def add_Pin(self, PinObject):
+        if isinstance(PinObject, Pin):
+            self._Charge_Pin = Pin

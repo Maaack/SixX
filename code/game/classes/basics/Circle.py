@@ -21,6 +21,9 @@ class Circle:
         self.inertia = pymunk.moment_for_circle(self.mass, 0, self.radius)  # 1
         self.body = pymunk.Body(self.mass, self.inertia)  # 2
         self.body.position = position # 3
+        self.body.velocity_limit = 600
+        self.body.game_object = ElementObject
+
         self.shape = pymunk.Circle(self.body, self.radius)  # 4
         self.shape.collision_type = 2
         self.shape.friction = 900.0
@@ -28,13 +31,14 @@ class Circle:
         self.shape.game_object = ElementObject
 
     def destroy(self):
+        if isinstance(self.shape, pymunk.Shape):
+            self._Plane.remove(self.shape)
+            self.shape = None
+
         if isinstance(self.body, pymunk.Body):
             self._Plane.remove(self.body)
             self.body = None
 
-        if isinstance(self.shape, pymunk.Shape):
-            self._Plane.remove(self.shape)
-            self.shape = None
 
     def display(self, game, screen, offset = (0,0)):
         point = pymunk.Vec2d(self.body.position)

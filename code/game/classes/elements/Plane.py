@@ -57,11 +57,16 @@ class Plane:
     def add_to_space(self, arg):
         if arg not in self._all_objects and arg not in self._skip_adding_objects:
             self._all_objects.append(arg)
+            print(len(self._all_objects))
+            if hasattr(arg, "game_object"):
+                print("ADDING :" + str(arg.game_object))
             self.space.add(arg)
 
     def remove_from_space(self, arg):
         if arg in self._all_objects:
             self._all_objects.remove(arg)
+            if hasattr(arg, "game_object"):
+                print("REMOVING :" + str(arg.game_object))
             self.space.remove(arg)
         else:
             self._skip_adding_objects.append(arg)

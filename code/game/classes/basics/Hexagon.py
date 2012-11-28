@@ -28,6 +28,8 @@ class Hexagon:
         self.inertia = pymunk.moment_for_poly(self.mass, self.points)  # 1
         self.body = pymunk.Body(self.mass, self.inertia)  # 2
         self.body.position = position # 3
+        self.body.velocity_limit = 600
+        self.body.game_object = ElementObject
 
         if shape:
             friction = 900.0
@@ -42,13 +44,14 @@ class Hexagon:
             self.shape = None
 
     def destroy(self):
-        if isinstance(self.body, pymunk.Body):
-            self._Plane.remove(self.body)
-            self.body = None
-
         if isinstance(self.shape, pymunk.Shape):
             self._Plane.remove(self.shape)
-            self.shape = None
+        self.shape = None
+
+        if isinstance(self.body, pymunk.Body):
+            self._Plane.remove(self.body)
+        self.body = None
+
 
     def display(self, game, screen, offset = (0,0)):
         angle = self.body.angle
@@ -78,12 +81,8 @@ class Hexagon:
         self.points = points
         return self.points
 
-    def attach_object(self, other):
-        pymunk.constraint.PinJoint(self, other)
-
     def get_display_object(self):
         return self
-
 
     # Just for debugging
     def __str__(self):

@@ -34,10 +34,10 @@ def get_random_angle():
     # In radians
     return random.uniform(0, math.pi*2)
 
-def get_distance_within((x1,y1), (x2, y2), max_distance):
+def get_distance_within((x1,y1), (x2, y2), max_distance = 0):
     # Avoid doing any square roots by checking the points
     # distance squared against the max distance squared
-    return ((x2-x1)**2 + (y2-y1)**2) < (max_distance**2)
+    return ((x2-x1)**2 + (y2-y1)**2) <= (max_distance**2)
 
 def get_average_vector(vectors):
     if len(vectors) == 0:
