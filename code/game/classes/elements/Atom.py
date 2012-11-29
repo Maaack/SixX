@@ -88,8 +88,19 @@ class Atom(Element):
     def get_radius(self):
         return self._radius
 
-    def destroy(self):
-        self._Plane.remove(self.BasicObject.body, self.BasicObject.shape)
+    def destroy_Basics(self):
+        self.destroy_Basic()
+        self.destroy_Charge()
+
+    def destroy_Charge(self):
+        if hasattr(self._Charge, 'destroy'):
+            self._Charge.destroy()
+        self._Charge = None
+
+    def destroy_Charge_Pin(self):
+        if hasattr(self._Charge_Pin, 'destroy'):
+            self._Charge_Pin.destroy()
+        self._Charge_Pin = None
 
     def display(self, game, screen, offset = (0,0)):
         self.BasicObject.display(game, screen, offset)
@@ -115,7 +126,7 @@ class Atom(Element):
         force = physical_object.force
 
         if isinstance(self._Charge, Charge):
-            current_energy = self._Charge.get_charge()
+            current_energy = self._Charge.energy
             if self._Charge.get_Player() != player:
                 current_energy = -(current_energy)
                 is_opposing = True
@@ -138,22 +149,16 @@ class Atom(Element):
 
 
     def _set_charge(self, player, energy):
-        if energy <= 0:
-            self.destroy_Charge()
-            return True
-
-        if isinstance(player, Player):
-            self._Player = player
-        else:
+        if not isinstance(player, Player):
             raise Exception("Not a valid type " + str(player) +  " for a Player in " + str(self) + " !")
-
-        # Destroy the charge before as it may have a new mass
-        # now depending on the amount of energy.
-        self.destroy_Charge()
-        scale = energy / self._energy_capacity
-        self._Charge = charge = Charge(self._Game, player, self, energy, scale)
-        self._Charge_Pin = Pin(self._Game, self, charge)
-        return self._Charge
+        if energy > 0:
+            self._Player = player
+            if hasattr(self._Charge, 'energy'):
+                self._Charge.energy = energy
+            else:
+                self._Charge = Charge(self._Game, player, self, energy)
+        else:
+            self.destroy_Charge()
 
     def _create_Shell(self, PlayerObject):
         if isinstance(PlayerObject, Player):
@@ -191,11 +196,6 @@ class Atom(Element):
         if isinstance(self._Shell, Shell):
             self._Shell = 0
 
-
-    def destroy_Charge(self):
-        if isinstance(self._Charge, Charge):
-            self._Charge.destroy()
-            self._Charge = None
 
     def add_Pin(self, PinObject):
         if isinstance(PinObject, Pin):

@@ -57,6 +57,10 @@ class Energy(Element):
     def is_deselected(self, position):
         return get_distance_within(position, self.BasicObject.body.position, self._radius)
 
+    def destroy_Basics(self):
+        self.destroy_Basic()
+        self._Circle = None
+
     def display_selected(self, game, screen, offset = (0,0)):
         if self.BasicObject == None:
             print "Display_selected when none"
@@ -97,6 +101,7 @@ class Energy(Element):
             self._set_Circle(mass, position, radius, color)
         else:
             self.destroy()
+
 
     energy = property(_get_energy, _set_energy)
 

@@ -1,4 +1,4 @@
-class Element:
+class Element(object):
 
     _Game = None
     BasicObject = None
@@ -25,9 +25,12 @@ class Element:
         return self.BasicObject.shape.point_query(position)
 
     def destroy(self):
-        self.destroy_Basic()
+        self.destroy_Basics()
         self._Game.drop_Object(self)
 
+
+    def destroy_Basics(self):
+        self.destroy_Basic()
 
     def destroy_Basic(self):
         if hasattr(self.BasicObject, 'destroy'):

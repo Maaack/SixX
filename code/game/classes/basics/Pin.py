@@ -41,10 +41,10 @@ class Pin:
         else:
             raise Exception("Not a valid type " + str(BodyA) +  " for a Body in " + str(self) + " !")
 
-        if hasattr(GameElementA, 'add_pin'):
-            GameElementA.add_pin(self)
+        if hasattr(GameElementA, 'add_Pin'):
+            GameElementA.add_Pin(self)
 
-        if hasattr(GameElementB, 'add_pin'):
+        if hasattr(GameElementB, 'add_Pin'):
             GameElementB.add_Pin(self)
 
     def destroy(self):
