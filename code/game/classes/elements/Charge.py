@@ -35,7 +35,7 @@ class Charge(Element):
             raise Exception("Not a valid type " + str(AtomObject) +  " for a Atom in " + str(self) + " !")
 
         self._Game = GameObject
-        self._Plane = GameObject.plane
+        self._Plane = GameObject.Plane
         self._energy_mass = GameObject.energy_mass
         self._energy_capacity = GameObject.energy_capacity
         self._energy_density = GameObject.energy_density

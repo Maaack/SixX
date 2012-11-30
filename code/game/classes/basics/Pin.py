@@ -10,7 +10,7 @@ class Pin:
         if not isinstance(GameObject, game.Game):
             raise Exception("Not a valid type " + str(GameObject) +  " for a Game in " + str(self) + " !")
         self._Game = GameObject
-        self._Plane = GameObject.plane
+        self._Plane = GameObject.Plane
 
         if hasattr(GameElementA, 'get_physical_object'):
             BodyA = GameElementA.get_physical_object()

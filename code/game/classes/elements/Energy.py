@@ -31,7 +31,7 @@ class Energy(Element):
             self._position = position = (0,0)
 
         self._Game = GameObject
-        self._Plane = GameObject.plane
+        self._Plane = GameObject.Plane
 
         GameObject.all_objects.append(self)
         GameObject.display_objects.append(self)
@@ -60,6 +60,12 @@ class Energy(Element):
     def destroy_Basics(self):
         self.destroy_Basic()
         self._Circle = None
+
+    def get_physical_object(self):
+        if self.BasicObject == None:
+            print "get_phyiscal_body when none"
+            return False
+        return self.BasicObject.body
 
     def display_selected(self, game, screen, offset = (0,0)):
         if self.BasicObject == None:

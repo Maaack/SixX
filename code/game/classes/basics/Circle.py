@@ -33,10 +33,12 @@ class Circle:
     def destroy(self):
         if isinstance(self.shape, pymunk.Shape):
             self._Plane.remove(self.shape)
+            self.shape.game_object = None
         self.shape = None
 
         if isinstance(self.body, pymunk.Body):
             self._Plane.remove(self.body)
+            self.body.game_object = None
         self.body = None
 
 

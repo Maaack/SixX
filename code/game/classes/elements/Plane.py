@@ -10,7 +10,7 @@ class Plane:
         self.size = (height, width)
         self.position = position
         self.space = Space()
-        self.space.set_default_collision_handler( begin = game.default_collision_func, pre_solve = game.default_collision_func )
+        self.space.set_default_collision_handler( begin = game.collision_begin_func, pre_solve = game.collision_pre_solve_func )
 
         # Gravity vector
         self.space.gravity = (0.0, 0.0)

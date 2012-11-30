@@ -35,7 +35,7 @@ class Atom(Element):
             self._position = position = (0,0)
 
         self._Game = GameObject
-        self._Plane = GameObject.plane
+        self._Plane = GameObject.Plane
         if skill in GameObject.skills_list:
             self._skill = skill
         else:

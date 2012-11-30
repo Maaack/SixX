@@ -39,9 +39,9 @@ class Game:
 
 
         # Create the Plane that we are playing in.
-        self.plane = Plane(self, interface.screen_size)
+        self._Plane = Plane(self, interface.screen_size)
         # Add it to the objects that display
-        self.display_objects.append(self.plane)
+        self.display_objects.append(self._Plane)
 
         self.display_surface    = pygame.Surface(screen_size, pygame.SRCALPHA)
         self.foreground_surface = pygame.Surface(screen_size, pygame.SRCALPHA)
@@ -72,6 +72,15 @@ class Game:
         # Make some atoms
         for n in range(self.number_of_hexes):
             self.newAtom('basic', False, 0)
+
+    def _get_Plane(self):
+        return self._Plane
+
+    def _set_Plane(self, PlaneObject):
+        if isinstance(PlaneObject, Plane):
+            self._Plane = PlaneObject
+
+    Plane = property(_get_Plane, _set_Plane)
 
     def select_objects_at_point(self, point):
         action_taken = False
@@ -107,7 +116,7 @@ class Game:
     def step(self, d_game_time, d_real_time):
         self.update_game_time(d_game_time)
         self.update_real_time(d_real_time)
-        self.plane.step(d_game_time)
+        self._Plane.step(d_game_time)
 
 
     def display(self, screen, offset = (0,0)):
@@ -240,7 +249,7 @@ class Game:
         return the_atom
 
     def drop_object_from_space(self, bye_bye):
-        self.plane.remove(bye_bye)
+        self._Plane.remove(bye_bye)
 
     def drop_highlights(self):
         self.highlight_objects = []
@@ -270,30 +279,53 @@ class Game:
     def get_time_difference(self):
         return self.real_time - self.game_time
 
-    def default_collision_func(self, space, arbiter, *args):
+    def collision_begin_func(self, space, arbiter, *args):
+        # self.collision_pre_solve_func(space, arbiter, args, register=False)
+        return True
+
+    def collision_pre_solve_func(self, space, arbiter, *args, **kwargs):
         """For each contact, register the collision and figure
         out what to do. """
         GameObjects = []
         EnergyObjects = []
         ChargeObjects = []
         AtomObjects = []
+        if 'register' in kwargs:
+            register = kwargs['register']
+        else:
+            register = True
         for shape in arbiter.shapes:
             if hasattr(shape, 'game_object'):
                 game_object = shape.game_object
                 GameObjects.append(game_object)
+                """
+                if not hasattr(game_object, 'body'):
+                    # Extra clean up catching just in case
+                    # something has no body.  Should never
+                    # happen... I think.
+                    if hasattr(game_object, 'destroy'):
+                        game_object.destroy()
+                    self.drop_Object(game_object)
+                el"""
                 if isinstance(game_object, Atom):
                     AtomObjects.append(game_object)
                 elif isinstance(game_object, Energy):
                     EnergyObjects.append(game_object)
                 elif isinstance(game_object, Charge):
                     ChargeObjects.append(game_object)
+            else:
+                self._Plane.remove(shape)
 
 
         if len(EnergyObjects) == 1 and len(AtomObjects) == 1:
-            return self.energy_atom_collision_func(EnergyObjects[0], AtomObjects[0])
+            if register:
+                self.energy_atom_collision_func(EnergyObjects[0], AtomObjects[0])
+            return False
 
         if len(AtomObjects) == 2:
-            return self.atom_atom_collision_func(AtomObjects)
+            if register:
+                self.atom_atom_collision_func(AtomObjects)
+            return True
 
         return True
 
