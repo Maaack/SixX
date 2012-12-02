@@ -2,17 +2,26 @@ __author__ = 'marek'
 
 import game
 import pygame
+import time
 from pygame.transform import scale
 from pygame.locals import *
 
 class View(object):
-    def __init__(self, view_size, name = ''):
+    def __init__(self, view_size, name = '', per_pixel_alpha = True):
         self._view_size = view_size
-        self._Surface   = pygame.Surface(view_size, pygame.SRCALPHA)
+        self.name = name
+        self._per_pixel_alpha = per_pixel_alpha
+        if per_pixel_alpha:
+            self._Surface   = pygame.Surface(view_size, pygame.SRCALPHA)
+        else:
+            self._Surface   = pygame.Surface(view_size)
         self._Views = {}
         self._View_Rect = self._Surface.get_clip()
         self._background_color = (0,0,0)
-        self.name = name
+        self._last_update_time = time.time()
+        # TODO: Set fps from the Interface or MainView
+        self._frames_per_second = 40.0
+        self._update_interval = 1/self._frames_per_second
 
     def _get_Surface(self):
         return self._Surface
@@ -68,6 +77,22 @@ class View(object):
 
     Rect = property(_get_Rect)
 
+    def _get_fps(self):
+        return self._frames_per_second
+
+    def _set_fps(self, fps):
+        self._frames_per_second = fps
+        if fps > 0:
+            self._update_interval = 1.0/self._frames_per_second
+        else:
+            # Passing in fps < 0 means you don't want the surface to update unless forced.
+            # This sets the update interval to zero, effectively skipping its updates per call to update.
+            # Good for menus or other things that only update on player interaction.
+            self._update_interval = 0
+
+    fps = property(_get_fps, _set_fps)
+
+
 
     def attach_View(self, ViewObject, position = (0,0), area = None):
         """
@@ -76,6 +101,7 @@ class View(object):
         :return:
         """
         if isinstance(ViewObject, game.views.View) and ViewObject.name not in self._Views:
+            # TODO: Doing this by name is not going to work, need a globally unique id for each View
             self._Views[ViewObject.name] = {'View':ViewObject,
                                             'position':position,
                                             'area':area}
@@ -88,6 +114,20 @@ class View(object):
         """
         if isinstance(ViewObject, game.views.View) and ViewObject.name in self._Views:
             del self._Views[ViewObject.name]
+
+    def update(self):
+        # Check that we should be running updates at all.
+        if self._update_interval > 0:
+            # Check that one does not update the view more than the frame rate
+            # This can happen in the case of multiple cameras pointing at a Surface
+            # asking the View to update before getting the Surface area.
+            current_time = time.time()
+            if current_time > self._last_update_time + self._update_interval:
+                self.update_forced()
+
+    def update_forced(self):
+        self._last_update_time = time.time()
+        self.update_Views()
 
     def update_Views(self):
         if not isinstance(self._Surface, pygame.Surface):
@@ -107,6 +147,3 @@ class View(object):
 
         screen.unlock()
 
-
-    def update(self, SurfaceObject, position = (0,0), mask = None):
-        self.update_Views()

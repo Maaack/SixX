@@ -5,7 +5,7 @@
 # building, and scripting pages.
 #
 import pygame
-import pygame.mixer
+import time
 import random
 import math
 from . import *

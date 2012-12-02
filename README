@@ -1,5 +1,7 @@
 SixX
 
-You need pygame installed.
-I was running this in Python 2.7.3.
-Run sixx.py
+Game Engine
+Run sixx.py in Python 2.7.3.
+Some version 1.9.# of PyGame is required.
+The PyMunk physics engine comes bundled.  PyMunk is a Python wrapper for the Chipmunk library written in C.  You may need something to run that...
+
