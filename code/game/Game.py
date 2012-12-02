@@ -1,8 +1,8 @@
 #!/usr/bin/env python
+# Game Class
 import pygame
 import pymunk
 import random
-# Game Class
 from game.libs import *
 from game.classes import *
 
@@ -134,7 +134,7 @@ class Game:
             if hasattr(display_object, "get_display_object"):
                 display_object = display_object.get_display_object()
             if hasattr(display_object, "display"):
-                display_object.display(self, self.display_surface, offset)
+                display_object.display(self, self.display_surface)
             else:
                 print str(display_object) + " has no method 'display'"
 
@@ -143,7 +143,7 @@ class Game:
             if hasattr(selected_object, "get_display_object"):
                 selected_object = selected_object.get_display_object()
             if hasattr(selected_object, "display_selected"):
-                selected_object.display_selected(self, self.background_surface, offset)
+                selected_object.display_selected(self, self.background_surface)
             else:
                 print str(selected_object) + " has no method 'display_selected'"
 
@@ -151,7 +151,7 @@ class Game:
             if hasattr(hovering_object, "get_display_object"):
                 hovering_object = hovering_object.get_display_object()
             if hasattr(hovering_object, "display_hovering"):
-                hovering_object.display_hovering(self, self.background_surface, offset)
+                hovering_object.display_hovering(self, self.background_surface)
             else:
                 print str(hovering_object) + " has no method 'display_hovering'"
 
@@ -160,7 +160,7 @@ class Game:
         # currently executed.
         for highlighted_object in self.highlight_objects:
             if hasattr(highlighted_object, "display"):
-                highlighted_object.display(self, self.foreground_surface, offset)
+                highlighted_object.display(self, self.foreground_surface)
             else:
                 print str(highlighted_object) + " has no method 'display'"
 
@@ -168,9 +168,9 @@ class Game:
         # as other things drawn to the screen
         # will go above this surface graphics.
         screen.unlock()
-        screen.blit(self.background_surface, (0,0))
-        screen.blit(self.display_surface, (0,0))
-        screen.blit(self.foreground_surface, (0,0))
+        screen.blit(self.background_surface, offset)
+        screen.blit(self.display_surface, offset)
+        screen.blit(self.foreground_surface, offset)
         screen.lock()
 
 
