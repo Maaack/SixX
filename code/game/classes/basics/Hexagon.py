@@ -4,16 +4,17 @@ import pygame
 import math
 from game.libs import *
 from game import pymunk
+from game.classes.basics.Basic import Basic
 
 
-class Hexagon:
+class Hexagon(Basic):
     strobe_frequency = 2.0
     strobe_size = 5
     game = 0
 
     def __init__(self, PlaneObject, ElementObject, mass, position, radius, angle = 0, color = ( 0, 0, 0 ), width = 1, shape = True):
-        self._Element = ElementObject
         self._Plane = PlaneObject
+        self._Element = ElementObject
         self.mass = mass
         self.position = position
         self.radius = radius

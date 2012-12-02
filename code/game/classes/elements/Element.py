@@ -15,6 +15,9 @@ class Element(object):
     def get_position(self):
         return self.BasicObject.body.position
 
+    def get_points(self):
+        return self.BasicObject.get_points()
+
     def is_hovering(self, position):
         return self.BasicObject.shape.point_query(position)
 

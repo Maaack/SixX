@@ -45,7 +45,7 @@ class Charge(Element):
         self._Atom = AtomObject
         self._position  = AtomObject.get_position()
         self._angle = AtomObject.get_angle()
-        self._atom_radius = AtomObject.get_radius()
+        self._atom_radius = radius = GameObject.atom_radius
 
 
         self._Atom_Pin = None

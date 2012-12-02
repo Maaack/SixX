@@ -24,6 +24,15 @@ from game.classes.elements.Element import Element
 class Atom(Element):
 
     def __init__(self, GameObject, position, angle, skill = 'basic', *args, **kwargs):
+        """
+        :param GameObject:Game
+        :param position: (int, int)
+        :param angle: float
+        :param skill: str
+        :param args:
+        :param kwargs:
+        :return:
+        """
         # Checking all inputs to be expected classes.
         if not isinstance(GameObject, game.Game):
             raise Exception("Not a valid type " + str(GameObject) +  " for a Game in " + str(self) + " !")
@@ -78,6 +87,8 @@ class Atom(Element):
         self._energy_transfer = GameObject.energy_transfer
         self._energy_transfer_modifier = 10.0
 
+        self._shell_charge_rate = GameObject.shell_charge_rate
+
         self.BasicObject = self._Hexagon = Hexagon(self._Plane, self, mass, position, radius, angle, color, 2)
         self._Plane.add(self.BasicObject.body, self.BasicObject.shape)
 
@@ -102,13 +113,19 @@ class Atom(Element):
             self._Charge_Pin.destroy()
         self._Charge_Pin = None
 
+    def destroy_Shell(self):
+        if hasattr(self._Shell, 'destroy'):
+            self._Shell.destroy()
+        self._Shell = None
+
     def display(self, game, screen, offset = (0,0)):
+        if isinstance(self._Shell, Shell):
+            self._Shell.display(game, screen, offset)
+
+        self.BasicObject.display(game, screen, offset)
         self.BasicObject.display(game, screen, offset)
         if isinstance(self._Charge, Charge):
             self._Charge.display(game, screen, offset)
-
-        if isinstance(self._Shell, Shell):
-            self._Shell.display(game, screen, offset)
 
     def display_selected(self, game, screen, offset = (0,0)):
         self.BasicObject.strobe(game, screen, offset)
@@ -142,59 +159,48 @@ class Atom(Element):
             max_transferable_energy = min(max_transferable_energy, max_additional_energy)
             energy = EnergyObject.transfer_energy(max_transferable_energy)
             total_energy = energy + current_energy
-            self._set_charge(player, total_energy)
+            self._set_Charge(player, total_energy)
+            self._set_Shell(player, total_energy/self._energy_capacity)
 #            energy_mass = self._Game.energy_mass
 #            self.hexagon.body.apply_force(force)
 
 
 
-    def _set_charge(self, player, energy):
-        if not isinstance(player, Player):
-            raise Exception("Not a valid type " + str(player) +  " for a Player in " + str(self) + " !")
+    def _set_Charge(self, PlayerObject, energy):
+        if not isinstance(PlayerObject, Player):
+            raise Exception("Not a valid type " + str(PlayerObject) +  " for a Player in " + str(self) + " !")
         if energy > 0:
-            self._Player = player
+            self._Player = PlayerObject
             if hasattr(self._Charge, 'energy'):
                 self._Charge.energy = energy
             else:
-                self._Charge = Charge(self._Game, player, self, energy)
+                self._Charge = Charge(self._Game, PlayerObject, self, energy)
         else:
             self.destroy_Charge()
 
-    def _create_Shell(self, PlayerObject):
-        if isinstance(PlayerObject, Player):
-            self._Player = PlayerObject
-        else:
+
+    def _set_Shell(self, PlayerObject, strength = 1.0):
+        if not isinstance(PlayerObject, Player):
             raise Exception("Not a valid type " + str(PlayerObject) +  " for a Player in " + str(self) + " !")
 
-        self._Shell = Shell(self._Game, PlayerObject, self)
-        return self._Shell
+        if strength > 0.0:
+            if strength > 1.0:
+                strength = 1.0
+            self._Shell_strength = strength
 
-    def set_Shell(self, PlayerObject, strength = 1.0):
-        if strength > 1.0:
-            strength = 1.0
-        elif strength < 0.0:
+            if not isinstance(self._Shell, Shell):
+                self._Shell = Shell(self._Game, PlayerObject, self)
+            elif self._Shell.get_Player() != PlayerObject:
+                self._Shell.destroy()
+                self._Shell = Shell(self._Game, PlayerObject, self)
+
+            self._Shell.strength = strength
+            return self._Shell
+
+        else:
             strength = 0.0
+            self._Shell_strength = strength
             self.destroy_Shell()
-
-        self._shell_strength = strength
-        self._update_Shell(PlayerObject, strength)
-
-
-    def _update_Shell(self, PlayerObject, strength):
-        if isinstance(self._Shell, Shell):
-            self._Shell.update_strength(strength)
-
-        elif isinstance(PlayerObject, Player):
-            self._Player = PlayerObject
-            shell = self._create_Shell(self._Player)
-            shell.update_strength(strength)
-        else:
-            raise Exception("Not a valid type " + str(PlayerObject) +  " for a Player in " + str(self) + " !")
-
-
-    def destroy_Shell(self):
-        if isinstance(self._Shell, Shell):
-            self._Shell = 0
 
 
     def add_Pin(self, PinObject):

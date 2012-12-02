@@ -6,15 +6,13 @@ from game.libs import *
 from game import pymunk
 
 
-class ChargeLines:
+class ChargeLines(object):
 
     def __init__(self, points, color = (255, 255, 255), width = 2 , increments = 16):
         self._points = []
         self._line_durations = []
         self._show_sides = 0
-        for point in points:
-            self._points.append(pymunk.Vec2d(point))
-            self._line_durations.append(0)
+        self.points = points
         self._width = width
         self._color = color
         self._increments = increments
@@ -38,9 +36,9 @@ class ChargeLines:
 
         for i, duration in enumerate(self._line_durations):
             if i > self._show_sides:
-                self._line_durations[i] = 0
+                self._line_durations[i] = 0.0
             else:
-                duration += 1
+                duration += 1.0
                 self._line_durations[i] = duration
 
             if duration > self._increments:
@@ -48,15 +46,15 @@ class ChargeLines:
             elif duration <= 0:
                 line_opacity.append(0)
             else:
-                line_opacity.append(line_max_opacity * ( duration / self._increments))
+                opacity = line_max_opacity * ( duration / self._increments)
+                line_opacity.append(opacity)
 
-        start = 0
-        end = 0
+        end = start = 0
         for i, point in enumerate(offset_points):
             end = start
             start = point
             r,g,b = self._color
-            if i > 1:
+            if i >= 1:
                 opacity = line_opacity[i - 1]
             else:
                 opacity = 0
@@ -67,3 +65,18 @@ class ChargeLines:
     def get_display_object(self):
         return self
 
+    def _get_points(self):
+        return self._points
+
+    def _set_points(self, points):
+        while len(self._line_durations) != len(points):
+            if len(self._line_durations) > len(points):
+                self._line_durations.pop()
+            elif len(self._line_durations) < len(points):
+                self._line_durations.append(0)
+
+        self._points = []
+        for point in points:
+            self._points.append(pymunk.Vec2d(point))
+
+    points = property(_get_points, _set_points)

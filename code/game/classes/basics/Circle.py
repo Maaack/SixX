@@ -4,14 +4,15 @@ import pygame
 import math
 from game.libs import *
 from game import pymunk
+from game.classes.basics.Basic import Basic
 
-class Circle:
+class Circle(Basic):
     strobe_frequency = 2.0
     strobe_size = 5
 
     def __init__(self, PlaneObject, ElementObject, mass, position, radius, color = (255,255,255), width = 0):
-        self._Element = ElementObject
         self._Plane = PlaneObject
+        self._Element = ElementObject
         self.position = position
         self.radius = radius
         self.color = color
@@ -51,7 +52,7 @@ class Circle:
         pygame.draw.circle(screen, self.color, point, radius, int(self.width))
         x2 = math.cos(self.body.angle)*self.radius + point_x
         y2 = math.sin(self.body.angle)*self.radius + point_y
-        line_color =  (255,255,255)
+        line_color =  (255,255,255,63)
         point_2 = (int(round(x2)),int(round(y2)))
         pygame.draw.line(screen, line_color, point, point_2, 2)
 

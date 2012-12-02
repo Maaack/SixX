@@ -47,7 +47,6 @@ class Energy(Element):
         self._set_energy(energy)
 
 
-
     def display(self, game, screen, offset = (0,0)):
         self.BasicObject.display(game,screen,offset)
 
@@ -69,7 +68,7 @@ class Energy(Element):
 
     def display_selected(self, game, screen, offset = (0,0)):
         if self.BasicObject == None:
-            print "Display_selected when none"
+            print "display_selected when none"
             return False
         self.BasicObject.pulse(game, screen, offset)
 
@@ -82,10 +81,11 @@ class Energy(Element):
             self.destroy_Basic()
         else:
             velocity = (0,0)
+        r,g,b = color
+        color = r, g, b, 127
         self.BasicObject = self._Circle = Circle(self._Plane, self, mass, position, radius, color)
         self._Plane.add(self.BasicObject.body, self.BasicObject.shape)
         self.BasicObject.body.velocity = velocity
-
 
     def get_Player(self):
         return self._Player
@@ -108,13 +108,15 @@ class Energy(Element):
         else:
             self.destroy()
 
-
     energy = property(_get_energy, _set_energy)
 
     def _get_mass(self):
         return self._mass
 
-    mass = property(_get_mass)
+    def _set_mass(self, mass):
+        self._mass = mass
+
+    mass = property(_get_mass, _set_mass)
 
     def transfer_energy(self, energy):
         max_transferable_energy = self._energy_transfer * self._energy_transfer_modifier

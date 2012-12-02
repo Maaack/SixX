@@ -7,6 +7,7 @@ from game.libs import *
 from game.classes import *
 
 class Game:
+    """Responsible for opening up a game and displaying to the interface"""
     # Going to store just about everything in...
     all_objects = []
 
@@ -31,15 +32,15 @@ class Game:
     # Game Variables
     number_of_hexes = 60
 
-    def __init__(self, interface):
-        self.interface = interface
-        self.screen_width, self.screen_height = screen_size = interface.screen_size
+    def __init__(self, InterfaceObject):
+        self._Interface = InterfaceObject
+        self.screen_width, self.screen_height = screen_size = InterfaceObject.screen_size
 
         # Set up the physics and collision handling
 
 
         # Create the Plane that we are playing in.
-        self._Plane = Plane(self, interface.screen_size)
+        self._Plane = Plane(self, InterfaceObject.screen_size)
         # Add it to the objects that display
         self.display_objects.append(self._Plane)
 
@@ -51,11 +52,13 @@ class Game:
         self.skills_list = ('basic', 'harvest', 'attack')
 
         self.skill_colors = {'basic': (0 , 0, 0),
-             'align': (64, 255, 64),
+             'harvest': (64, 255, 64),
              'attack': (255, 64, 64)}
 
         self.atom_mass = 100
         self.atom_max_charge = 100
+
+        self.shell_charge_rate = 0.2
 
         # Define the energy properties for the game
         self.energy_mass = 1
@@ -64,7 +67,7 @@ class Game:
         self.energy_capacity = 1000
 
         # Place the player's energy on the screen
-        player_color = random.choice(interface.colors)
+        player_color = random.choice(InterfaceObject.colors)
         self.player = Player('You', 1, 1, player_color)
         self.player_characters.append(self.player)
         self.newEnergy(self.player, 100)
