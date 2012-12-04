@@ -55,7 +55,7 @@ class CameraView(View):
             View = ViewDict['View']
             position = ViewDict['position']
             area = ViewDict['area']
-            View.update()
+            View.update(self._Camera_Rect)
             CameraSurface = View.Surface.subsurface(self._Camera_Rect)
             if self._smooth_scale:
                 ScaledSurface = smoothscale(CameraSurface, self.Rect)

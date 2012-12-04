@@ -20,7 +20,7 @@ class MainView(View):
         # Getting the Clock object
         self._Clock = pygame.time.Clock()
         # TODO: Set FPS from outside source
-        self._real_time = 0
+        self._display_time = 0
         self._frames_per_second = 40.0
         self._update_interval = 1/self._frames_per_second
 
@@ -35,7 +35,7 @@ class MainView(View):
 
     def update(self):
         dtime = self._Clock.tick(self._frames_per_second)
-        self._real_time += dtime
+        self._display_time += dtime
         self.update_Views()
         pygame.display.flip()
 

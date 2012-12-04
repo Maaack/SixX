@@ -63,3 +63,6 @@ def interval_triangle_wave(time, frequency, max_height = 1.0):
         return (1 - (level_2 - 1)) * max_height
     else:
         return level_2 * max_height
+
+def make_hash():
+    return hex(random.getrandbits(128))[2:-1]

@@ -5,11 +5,16 @@ Perhaps...
 __author__ = 'marek'
 
 import pygame
+from game.views.View import View
 
-class GameView(object):
+class GameView(View):
     #TODO: All of this
-    def __init__(self, GameObject, width, height, position = (0,0)):
+    def __init__(self, GameObject):
         self._Game = GameObject
+        PlaneObject = self._Game.Plane
+
+        super(GameView, self).__init__(view_size, True)
+        width, height = view_size
         self._width = width
         self._height = height
         self._position = position
