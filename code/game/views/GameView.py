@@ -5,6 +5,8 @@ Perhaps...
 __author__ = 'marek'
 
 import pygame
+import math
+from game.libs import *
 from game.views.View import View
 
 class GameView(View):
@@ -19,6 +21,7 @@ class GameView(View):
         # Defining some basic colors
         self.color_dict = {
             'black' : (0, 0, 0),
+            'gray' : (127, 127, 127),
             'white' : (255, 255, 255),
             'red' : (255, 0, 0),
             'green' : (0, 255, 0),
@@ -27,12 +30,16 @@ class GameView(View):
             'cyan' : (0, 255, 255),
             'magenta' : (255, 0, 255)
         }
+
+        # Make a dictionary of player available colors
         self.player_color_dict = self.color_dict.copy()
         del self.player_color_dict['white']
 
         self.opacity_dict = {
             'opaque' : 255,
             'visible' : 255,
+            'translucent' : 127,
+            'semitransparent' : 127,
             'transparent' : 0,
             'hidden' : 0,
             'invisible' : 0
@@ -48,7 +55,15 @@ class GameView(View):
             'border2_opacity' : o_dict['visible'],
             'border2_color' : c_dict['white'],
             'border2_width' : 4,
-            'shell_opacity' : o_dict['visible'],
+            'shell_opacity' : o_dict['translucent'],
+            'shell_width' : 8,
+            'selected_func' : self.strobe,
+            'hover_func' : self.strobe,
+        }
+
+        self.energy_settings = {
+            'border_width' : 0,
+            'selected_func' : self.pulse
         }
 
         self.display_surface    = pygame.Surface(view_size, pygame.SRCALPHA)
@@ -107,3 +122,61 @@ class GameView(View):
         screen.blit(self.display_surface, position)
         screen.blit(self.foreground_surface, position)
         screen.lock()
+
+
+    def display_Circle(self, game, screen, offset = (0,0)):
+        point = self.body.position
+        point = point + offset
+        point_x, point_y = point
+        point = (int(round(point_x)), int(round(point_y)))
+        radius = int(round(self.radius))
+        pygame.draw.circle(screen, self.color, point, radius, int(self.width))
+        x2 = math.cos(self.body.angle)*self.radius + point_x
+        y2 = math.sin(self.body.angle)*self.radius + point_y
+        line_color =  (255,255,255,63)
+        point_2 = (int(round(x2)),int(round(y2)))
+        pygame.draw.line(screen, line_color, point, point_2, 2)
+
+    def display_Hexagon(self, game, screen, offset = (0,0)):
+        angle = self.body.angle
+        position = self.body.position
+        points_floats = get_hex_points(self.radius,angle,position)
+        points = []
+        for point in points_floats:
+            x, y = point
+            points.append((round(x), round(y)))
+        pygame.draw.polygon(screen, self.color, points, self.width)
+
+    def display_Shell(self, game, screen, offset = (0,0)):
+        points = self._Atom.get_points()
+        points.append(points[0])
+        # TODO: Move display information of Charge Lines into Shells
+        # and pass all the data in on init, and let the object be
+        # del between cycles.  Or somehow keep track of the Charge
+        # Lines and other graphics in GameView or attached still to Shell
+        # like it is now.  Not sure if I want GameView to rely on GameObjects
+        # having references to other visual display objects, would rather
+        # it all be handled in the GameView.
+        self._ChargeLines.points = points
+        return self._ChargeLines.display(game, screen, offset)
+
+
+    def strobe(self, game, screen, offset = (0,0)):
+        strobe_width = interval_triangle_wave(game.real_time, self.strobe_frequency, self.strobe_size)
+        width = int(strobe_width)
+        points = self.get_points()
+        #offset_points = []
+        #for point in points:
+        #    offset_points.append((pymunk.Vec2d(point) + pymunk.Vec2d(offset)))
+        pygame.draw.lines(screen, self.color, 1, points, width)
+
+
+    def pulse(self, game, screen, offset = (0,0)):
+        strobe_width = interval_triangle_wave(game.real_time, self.strobe_frequency, self.strobe_size)
+        width = int(strobe_width)
+        point = self.body.position
+        point = point + offset
+        point_x, point_y = point
+        point = (int(round(point_x)), int(round(point_y)))
+        radius = int(round(self.radius+width))
+        pygame.draw.circle(screen, self.color, point, radius, int(self.width))
