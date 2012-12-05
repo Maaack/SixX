@@ -9,23 +9,53 @@ from game.views.View import View
 
 class GameView(View):
     #TODO: All of this
-    def __init__(self, GameObject):
-        self._Game = GameObject
-        PlaneObject = self._Game.Plane
 
+    def __init__(self, view_size, GameObject):
+        self._Game = GameObject
+        PlaneObject = GameObject.Plane
         super(GameView, self).__init__(view_size, True)
-        width, height = view_size
-        self._width = width
-        self._height = height
-        self._position = position
         self.display_tick = 0
 
-        self.atom_border_opacity = 255
-        self.atom_shell_opacity = 255
-        self.display_surface    = pygame.Surface(screen_size, pygame.SRCALPHA)
-        self.foreground_surface = pygame.Surface(screen_size, pygame.SRCALPHA)
-        self.background_surface = pygame.Surface(screen_size, pygame.SRCALPHA)
+        # Defining some basic colors
+        self.color_dict = {
+            'black' : (0, 0, 0),
+            'white' : (255, 255, 255),
+            'red' : (255, 0, 0),
+            'green' : (0, 255, 0),
+            'blue' : (0, 0, 255),
+            'yellow' : (255, 255, 0),
+            'cyan' : (0, 255, 255),
+            'magenta' : (255, 0, 255)
+        }
+        self.player_color_dict = self.color_dict.copy()
+        del self.player_color_dict['white']
 
+        self.opacity_dict = {
+            'opaque' : 255,
+            'visible' : 255,
+            'transparent' : 0,
+            'hidden' : 0,
+            'invisible' : 0
+        }
+
+        c_dict = self.color_dict
+        o_dict = self.opacity_dict
+
+        self.atom_settings = {
+            'border_opacity' : o_dict['visible'],
+            'border_color' : c_dict['black'],
+            'border_width' : 2,
+            'border2_opacity' : o_dict['visible'],
+            'border2_color' : c_dict['white'],
+            'border2_width' : 4,
+            'shell_opacity' : o_dict['visible'],
+        }
+
+        self.display_surface    = pygame.Surface(view_size, pygame.SRCALPHA)
+        self.foreground_surface = pygame.Surface(view_size, pygame.SRCALPHA)
+        self.background_surface = pygame.Surface(view_size, pygame.SRCALPHA)
+        # TODO: Define a surface for each of the graphical elements that can be assumed
+        # to have all the same transparency
 
     def display(self, screen, position = (0,0)):
         self.display_tick += 1

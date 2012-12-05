@@ -42,9 +42,19 @@ class CameraView(View):
         # as multiple Cameras might point at the same View.
 
 
-    def update_Views(self):
+    def update_Views(self, area=None):
         if not isinstance(self._Surface, pygame.Surface):
             raise Exception("Trying to update Views on " + str(self._Surface) +  " in " + str(self) + " !")
+
+        if isinstance(area, Rect):
+            # Clipping the update area to the View Rect
+            area = area.clip(self.Rect)
+        else:
+            # Updating the entire View
+            area = self.Rect
+
+        if area.size == 0:
+            return
 
         screen = self._Surface
         # Clear the screen
@@ -58,9 +68,9 @@ class CameraView(View):
             View.update(self._Camera_Rect)
             CameraSurface = View.Surface.subsurface(self._Camera_Rect)
             if self._smooth_scale:
-                ScaledSurface = smoothscale(CameraSurface, self.Rect)
+                ScaledSurface = smoothscale(CameraSurface, area)
             else:
-                ScaledSurface = scale(CameraSurface, self.Rect)
+                ScaledSurface = scale(CameraSurface, area)
             screen.blit(ScaledSurface, position, area)
             del CameraSurface
             del ScaledSurface

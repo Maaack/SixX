@@ -129,10 +129,10 @@ class View(object):
         if self._update_interval > 0 or self._force_next_update:
             if isinstance(area, Rect):
                 # Clipping the update area to the View Rect
-                area = area.clip(self._View_Rect)
+                area = area.clip(self.Rect)
             else:
                 # Updating the entire View
-                area = self._View_Rect
+                area = self.Rect
 
             if area.size == 0:
                 return
@@ -151,13 +151,13 @@ class View(object):
         self.update_Views(area)
 
     def update_Views(self, area=None):
-        if not isinstance(self._Surface, pygame.Surface):
-            raise Exception("Trying to Display on " + str(self._Surface) +  " in " + str(self) + " !")
+        if not isinstance(self.Surface, pygame.Surface):
+            raise Exception("Trying to Display on " + str(self.Surface) +  " in " + str(self) + " !")
 
-        screen = self._Surface
-        # Clear the screen
-        screen.lock()
-        screen.fill(self._background_color)
+        SurfaceObject = self.Surface
+        # Clear the SurfaceObject
+        SurfaceObject.lock()
+        SurfaceObject.fill(self._background_color)
 
         for ViewDict in self._Views:
             View = ViewDict['View']
@@ -165,7 +165,7 @@ class View(object):
             if ViewDict['area'] != None:
                 area = ViewDict['area']
             View.update(area)
-            screen.blit(View.Surface, position, area)
+            SurfaceObject.blit(View.Surface, position, area)
 
-        screen.unlock()
+        SurfaceObject.unlock()
 
