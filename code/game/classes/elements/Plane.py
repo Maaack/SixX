@@ -5,10 +5,9 @@ from game.pymunk import *
 from game.classes.basics.Wall import *
 
 class Plane:
-    def __init__(self, game, (height, width), position = (0,0)):
+    def __init__(self, game, (height, width)):
         self.game = game
         self.size = (height, width)
-        self.position = position
         self.space = Space()
         self.space.set_default_collision_handler( begin = game.collision_begin_func, pre_solve = game.collision_pre_solve_func )
 
@@ -67,6 +66,3 @@ class Plane:
             self._skip_adding_objects.append(arg)
 
 
-    # Just for debugging
-    def __str__(self):
-        return "( " + str(self.position.x) + ", " + str(self.position.y) + " ) "
