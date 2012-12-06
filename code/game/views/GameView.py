@@ -58,12 +58,24 @@ class GameView(View):
             'shell_opacity' : o_dict['translucent'],
             'shell_width' : 8,
             'selected_func' : self.strobe,
+            'selected_func_args' : {
+                'strobe_frequency': 2.0,
+                'strobe_size': 5
+            },
             'hover_func' : self.strobe,
+            'hover_func_args' : {
+                'strobe_frequency': 2.0,
+                'strobe_size': 5
+            },
         }
 
         self.energy_settings = {
             'border_width' : 0,
-            'selected_func' : self.pulse
+            'selected_func' : self.pulse,
+            'selected_func_args' : {
+                'strobe_frequency': 2.0,
+                'strobe_size': 5
+            },
         }
 
         self.display_surface    = pygame.Surface(view_size, pygame.SRCALPHA)
