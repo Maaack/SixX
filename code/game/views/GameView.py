@@ -172,6 +172,11 @@ class GameView(View):
         self._ChargeLines.points = points
         return self._ChargeLines.display(game, screen, offset)
 
+    def display_Wall(self, game, screen, offset = (0,0)):
+        for wall in self._Walls:
+            offset_a = self.a + Vec2d(offset)
+            offset_b = self.b + Vec2d(offset)
+            pygame.draw.line(screen, (0,0,0), offset_a, offset_b, 6)
 
     def strobe(self, game, screen, offset = (0,0)):
         strobe_width = interval_triangle_wave(game.real_time, self.strobe_frequency, self.strobe_size)
