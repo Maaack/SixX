@@ -13,7 +13,12 @@ class Level(object):
         if isinstance(ElementData, ElementData):
             self._contents.append(ElementData)
 
-    def add_Player(self, GameElement):
-        if isinstance(GameElement, elements.Element):
-            self._contents.append(GameElement)
+    def add_Player(self, PlayerObject):
+        if isinstance(PlayerObject, Player):
+            self._players.append(PlayerObject)
 
+    def get_Elements(self):
+        return self._contents
+
+    def get_Players(self):
+        return self._players

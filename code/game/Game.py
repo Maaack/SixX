@@ -66,6 +66,7 @@ class Game:
         self.energy_transfer = 2
         self.energy_capacity = 1000
 
+        self._Neutral_Player = Player('Neutral')
         # Place the player's energy on the screen
         player_color = random.choice(InterfaceObject.colors)
         self.player = Player('You', 1, 1, player_color)

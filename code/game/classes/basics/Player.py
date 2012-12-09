@@ -4,7 +4,7 @@ import pygame
 from game.libs import make_hash
 
 class Player:
-    def __init__(self, name, number, team_number = 0, color = (255, 255, 255), color2= (196,0,64)):
+    def __init__(self, name = '', number = 0, team_number = 0, color = (255, 255, 255), color2= (196,0,64)):
         self._id = make_hash()
         self.name = name
         self.number = number

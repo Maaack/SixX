@@ -9,7 +9,7 @@ from game.classes.Level import Level
 class RandomLevel(Level):
     screen_edge_spawn_radius = 10
 
-    def __init__(self, level_size, number_of_hexes):
+    def __init__(self, level_size = (800,600), number_of_hexes = 40):
         self._contents = []
 
         height, width = level_size
@@ -37,7 +37,7 @@ class RandomLevel(Level):
         self.newEnergy(self.player, 100)
 
         # Make some atoms
-        for n in range(self.number_of_hexes):
+        for n in range(number_of_hexes):
             self.newAtom('basic', False, 0)
 
 

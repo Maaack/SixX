@@ -7,17 +7,19 @@ __author__ = 'marek'
 import pygame
 import math
 from game.libs import *
+from game.classes import *
 from game.views.View import View
 
 class GameView(View):
     #TODO: All of this
 
-    def __init__(self, view_size, GameObject):
-        self._Game = GameObject
-        PlaneObject = GameObject.Plane
+    def __init__(self, view_size, GameObject, SpaceTimeObject):
         super(GameView, self).__init__(view_size, True)
+        self._Game = GameObject
+        self._SpaceTime = SpaceTimeObject
         self.display_tick = 0
-
+        self._players = SpaceTimeObject.get_players()
+        self._teams = SpaceTimeObject.get_teams()
         # Defining some basic colors
         self.color_dict = {
             'black' : (0, 0, 0),
@@ -32,8 +34,8 @@ class GameView(View):
         }
 
         # Make a dictionary of player available colors
-        self.player_color_dict = self.color_dict.copy()
-        del self.player_color_dict['white']
+        self.player_color_options_dict = self.color_dict.copy()
+        del self.player_color_options_dict['white']
 
         self.opacity_dict = {
             'opaque' : 255,
@@ -78,29 +80,37 @@ class GameView(View):
             },
         }
 
-        self.display_surface    = pygame.Surface(view_size, pygame.SRCALPHA)
-        self.foreground_surface = pygame.Surface(view_size, pygame.SRCALPHA)
-        self.background_surface = pygame.Surface(view_size, pygame.SRCALPHA)
         # TODO: Define a surface for each of the graphical elements that can be assumed
         # to have all the same transparency
+        self.surfaces_dict = {
+            'energy_body' : pygame.Surface(view_size),
+            'atom_charge' : pygame.Surface(view_size),
+            'atom_border' : pygame.Surface(view_size),
+            'atom_border2' : pygame.Surface(view_size),
+            'atom_shell' : pygame.Surface(view_size, pygame.SRCALPHA),
+            'selection' : pygame.Surface(view_size, pygame.SRCALPHA),
+            'mouse_hover' : pygame.Surface(view_size, pygame.SRCALPHA),
+            'mouse_splash' : pygame.Surface(view_size, pygame.SRCALPHA),
+            }
+
+        self.player_colors_dict = {
+
+        }
 
     def display(self, screen, position = (0,0)):
-        self.display_tick += 1
-        self.display_surface.fill((255,255,255,0))
-        self.background_surface.fill((255,255,255,0))
-        self.foreground_surface.fill((255,255,255,0))
 
-        # Display all the objects in the display
-        # objects list.  Usually Hexagons.
-        for display_object in self._Game.display_objects:
-            if hasattr(display_object, "get_display_object"):
-                display_object = display_object.get_display_object()
-            if hasattr(display_object, "display"):
-                display_object.display(self, self._Game.display_surface)
-            else:
-                print str(display_object) + " has no method 'display'"
+        for SurfaceObject in self.surfaces_dict:
+            SurfaceObject.fill((255,255,255,0))
 
-        # Selected Objects will create a pulse in the background
+        display_objects = self._SpaceTime.get_visible_objects()
+
+        for object in display_objects:
+            if isinstance(object, Atom):
+                self.display_Atom(object)
+            elif isinstance(object, Energy):
+                self.display_Energy(object)
+
+
         for selected_object in self._Game.selected_objects:
             if hasattr(selected_object, "get_display_object"):
                 selected_object = selected_object.get_display_object()
@@ -134,6 +144,36 @@ class GameView(View):
         screen.blit(self.display_surface, position)
         screen.blit(self.foreground_surface, position)
         screen.lock()
+
+    def display_Energy(self, EnergyObject):
+        position, radius = EnergyObject.get_points()
+        PlayerObject = EnergyObject.get_Player()
+        key = PlayerObject.get_id()
+        color = self.player_colors_dict[key]
+
+        width = self.energy_settings['border_width']
+        surface = self.surfaces_dict['energy_body']
+        pygame.draw.circle(surface, color, position, radius, 0)
+
+
+    def display_Atom(self, AtomObject):
+        points = AtomObject.get_points()
+        color = self.atom_settings['border2_color']
+        width = self.atom_settings['border2_width']
+        surface = self.surfaces_dict['atom_border2']
+        pygame.draw.polygon(surface, color, points, width)
+        color = self.atom_settings['border_color']
+        width = self.atom_settings['border_width']
+        surface = self.surfaces_dict['atom_border']
+        pygame.draw.polygon(surface, color, points, width)
+        width = self.atom_settings['shell_width']
+        surface = self.surfaces_dict['atom_shell']
+        points.append(points[0])
+        ChargeLines = ChargeLines()
+        ChargeLines.points = points
+        ChargeLines.display(game, screen, offset)
+
+
 
 
     def display_Circle(self, game, screen, offset = (0,0)):
