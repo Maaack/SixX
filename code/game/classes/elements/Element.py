@@ -1,7 +1,17 @@
+from game.libs import make_hash
+
 class Element(object):
 
     _Game = None
     BasicObject = None
+
+    def __init__(self):
+        self._id = make_hash()
+
+    def get_id(self):
+        return self._id
+
+    id = property(get_id)
 
     def get_physical_object(self):
         return self.BasicObject.body
@@ -30,7 +40,6 @@ class Element(object):
     def destroy(self):
         self.destroy_Basics()
         self._Game.drop_Object(self)
-
 
     def destroy_Basics(self):
         self.destroy_Basic()

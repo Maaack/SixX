@@ -26,7 +26,7 @@ class RandomLevel(Level):
 
         for border in borders:
             a, b = border
-            the_wall = Wall(a, b)
+            the_wall = Line(a, b)
             self._contents.append(the_wall)
 
         self._players = []

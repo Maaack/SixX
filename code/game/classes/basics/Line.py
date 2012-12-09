@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-# Wall Class
+# Line Class
 import pygame
 import math
 from game.libs import *
 from game.pymunk import *
 
-class Wall:
+class Line:
     def __init__(self, a = (0,0), b = (1,1), radius = 1 ):
         self.a = Vec2d(a)
         self.b = Vec2d(b)
@@ -23,7 +23,3 @@ class Wall:
 
     def get_shape(self):
         return self.shape
-
-    # Just for debugging
-    def __str__(self):
-        return "( " + str(self.a) + ", " + str(self.b) + " ) "

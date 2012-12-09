@@ -80,9 +80,15 @@ class GameView(View):
             },
         }
 
+        self.wall_settings = {
+            'width' : 6,
+            'color' : c_dict['black']
+        }
+
         # TODO: Define a surface for each of the graphical elements that can be assumed
         # to have all the same transparency
         self.surfaces_dict = {
+            'barriers' : pygame.Surface(view_size),
             'energy_body' : pygame.Surface(view_size),
             'atom_charge' : pygame.Surface(view_size),
             'atom_border' : pygame.Surface(view_size),
@@ -91,24 +97,34 @@ class GameView(View):
             'selection' : pygame.Surface(view_size, pygame.SRCALPHA),
             'mouse_hover' : pygame.Surface(view_size, pygame.SRCALPHA),
             'mouse_splash' : pygame.Surface(view_size, pygame.SRCALPHA),
-            }
-
-        self.player_colors_dict = {
-
         }
 
-    def display(self, screen, position = (0,0)):
+        # Assign colors to each of the players
+        self.player_colors_dict = {}
 
-        for SurfaceObject in self.surfaces_dict:
-            SurfaceObject.fill((255,255,255,0))
+        for PlayerObject in self._players:
+            player_color = random.choice(self.player_color_options_dict)
+            id = PlayerObject.id
+            self.player_colors_dict[ id ] = player_color
+
+        self.display_objects = {}
+
+
+    def update(self, area = None):
+
+        for SurfaceObject2 in self.surfaces_dict:
+            SurfaceObject2.fill((255,255,255,0))
 
         display_objects = self._SpaceTime.get_visible_objects()
 
+        # TODO: Only update objects that are in the area given.
         for object in display_objects:
             if isinstance(object, Atom):
                 self.display_Atom(object)
             elif isinstance(object, Energy):
                 self.display_Energy(object)
+            elif isinstance(object, Wall):
+                self.display_Wall(object)
 
 
         for selected_object in self._Game.selected_objects:
@@ -136,28 +152,51 @@ class GameView(View):
             else:
                 print str(highlighted_object) + " has no method 'display'"
 
-        # Display background to surface first,
-        # as other things drawn to the screen
-        # will go above this surface graphics.
-        screen.unlock()
-        screen.blit(self.background_surface, position)
-        screen.blit(self.display_surface, position)
-        screen.blit(self.foreground_surface, position)
-        screen.lock()
+        SurfaceObject = self.Surface
+        SurfaceObject.lock()
+        # Clear the SurfaceObject
+        SurfaceObject.fill(self._background_color)
 
+        SurfaceObject.unlock()
+        for SurfaceObject2 in self.surfaces_dict:
+            SurfaceObject.blit(SurfaceObject2)
+        SurfaceObject.lock()
+
+    # Display methods for each type of game object
     def display_Energy(self, EnergyObject):
         position, radius = EnergyObject.get_points()
         PlayerObject = EnergyObject.get_Player()
-        key = PlayerObject.get_id()
-        color = self.player_colors_dict[key]
+        id = PlayerObject.id
+        color = self.player_colors_dict[id]
 
         width = self.energy_settings['border_width']
         surface = self.surfaces_dict['energy_body']
-        pygame.draw.circle(surface, color, position, radius, 0)
-
+        pygame.draw.circle(surface, color, position, radius, width)
 
     def display_Atom(self, AtomObject):
+        id = AtomObject.id
         points = AtomObject.get_points()
+
+        # The Display of the Shell is a bit special as it requires
+        # an object to keep track of changes to make the UI act more
+        # fluid than the data in the actual game may be.
+        points_end = points.copy()
+        points_end.append(points_end[ 0 ])
+        ShellObject = AtomObject.get_Shell()
+        PlayerObject = ShellObject.get_Player()
+        player_id = PlayerObject.id
+        color_shell = self.player_colors_dict[ player_id ]
+        width = self.atom_settings['shell_width']
+        if id not in self.display_objects:
+            self.display_objects[ id ] = {
+                'shell' : ChargeLines(color_shell, width)
+            }
+        ChargeLinesObject = self.display_objects[ id ][ 'shell' ]
+        ChargeLinesObject.points = points_end
+        surface = self.surfaces_dict['atom_shell']
+        ChargeLinesObject.display( surface )
+
+        # Displaying atom border
         color = self.atom_settings['border2_color']
         width = self.atom_settings['border2_width']
         surface = self.surfaces_dict['atom_border2']
@@ -166,57 +205,13 @@ class GameView(View):
         width = self.atom_settings['border_width']
         surface = self.surfaces_dict['atom_border']
         pygame.draw.polygon(surface, color, points, width)
-        width = self.atom_settings['shell_width']
-        surface = self.surfaces_dict['atom_shell']
-        points.append(points[0])
-        ChargeLines = ChargeLines()
-        ChargeLines.points = points
-        ChargeLines.display(game, screen, offset)
 
-
-
-
-    def display_Circle(self, game, screen, offset = (0,0)):
-        point = self.body.position
-        point = point + offset
-        point_x, point_y = point
-        point = (int(round(point_x)), int(round(point_y)))
-        radius = int(round(self.radius))
-        pygame.draw.circle(screen, self.color, point, radius, int(self.width))
-        x2 = math.cos(self.body.angle)*self.radius + point_x
-        y2 = math.sin(self.body.angle)*self.radius + point_y
-        line_color =  (255,255,255,63)
-        point_2 = (int(round(x2)),int(round(y2)))
-        pygame.draw.line(screen, line_color, point, point_2, 2)
-
-    def display_Hexagon(self, game, screen, offset = (0,0)):
-        angle = self.body.angle
-        position = self.body.position
-        points_floats = get_hex_points(self.radius,angle,position)
-        points = []
-        for point in points_floats:
-            x, y = point
-            points.append((round(x), round(y)))
-        pygame.draw.polygon(screen, self.color, points, self.width)
-
-    def display_Shell(self, game, screen, offset = (0,0)):
-        points = self._Atom.get_points()
-        points.append(points[0])
-        # TODO: Move display information of Charge Lines into Shells
-        # and pass all the data in on init, and let the object be
-        # del between cycles.  Or somehow keep track of the Charge
-        # Lines and other graphics in GameView or attached still to Shell
-        # like it is now.  Not sure if I want GameView to rely on GameObjects
-        # having references to other visual display objects, would rather
-        # it all be handled in the GameView.
-        self._ChargeLines.points = points
-        return self._ChargeLines.display(game, screen, offset)
-
-    def display_Wall(self, game, screen, offset = (0,0)):
-        for wall in self._Walls:
-            offset_a = self.a + Vec2d(offset)
-            offset_b = self.b + Vec2d(offset)
-            pygame.draw.line(screen, (0,0,0), offset_a, offset_b, 6)
+    def display_Wall(self, WallObject):
+        surface = self.surfaces_dict['barriers']
+        a, b = WallObject.get_points()
+        color = self.wall_settings['color']
+        width = self.wall_settings['width']
+        pygame.draw.line(surface, color, a, b, width)
 
     def strobe(self, game, screen, offset = (0,0)):
         strobe_width = interval_triangle_wave(game.real_time, self.strobe_frequency, self.strobe_size)

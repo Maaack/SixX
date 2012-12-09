@@ -202,6 +202,9 @@ class Atom(Element):
             self._Shell_strength = strength
             self.destroy_Shell()
 
+    def get_Shell(self):
+        return self._Shell
+
 
     def add_Pin(self, PinObject):
         if isinstance(PinObject, Pin):

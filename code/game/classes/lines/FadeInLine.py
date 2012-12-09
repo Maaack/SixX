@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Wall Class
+# Line Class
 import pygame
 from game import pymunk
 from game.libs import *

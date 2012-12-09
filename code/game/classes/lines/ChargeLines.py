@@ -8,11 +8,10 @@ from game import pymunk
 
 class ChargeLines(object):
 
-    def __init__(self, points, color = (255, 255, 255), width = 2 , increments = 16):
+    def __init__(self, color = (255, 255, 255), width = 2 , increments = 16):
         self._points = []
         self._line_durations = []
         self._show_sides = 0
-        self.points = points
         self._width = width
         self._color = color
         self._increments = increments
@@ -25,14 +24,10 @@ class ChargeLines(object):
         else:
             self._show_sides = len(self._points) - 1
 
-    def display(self, game, screen, offset = (0,0)):
+    def display(self, screen):
         points = self._points
-        offset_points = []
         line_max_opacity = 255
         line_opacity = []
-
-        for point in points:
-            offset_points.append((pymunk.Vec2d(point) + pymunk.Vec2d(offset)))
 
         for i, duration in enumerate(self._line_durations):
             if i > self._show_sides:
@@ -50,7 +45,7 @@ class ChargeLines(object):
                 line_opacity.append(opacity)
 
         end = start = 0
-        for i, point in enumerate(offset_points):
+        for i, point in enumerate(points):
             end = start
             start = point
             r,g,b = self._color

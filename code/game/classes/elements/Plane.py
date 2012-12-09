@@ -2,7 +2,7 @@
 # Plane Class
 from game.libs import *
 from game.pymunk import *
-from game.classes.basics.Wall import *
+from game.classes.basics.Line import *
 
 class Plane:
     def __init__(self, game, (height, width)):
@@ -28,7 +28,7 @@ class Plane:
 
         for border in self.borders:
             a, b = border
-            the_wall = Wall(a, b)
+            the_wall = Line(a, b)
             self.walls.append(the_wall)
             self.space.add(the_wall.get_shape())
 
