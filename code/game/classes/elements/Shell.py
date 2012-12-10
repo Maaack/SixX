@@ -50,7 +50,7 @@ class Shell(Element):
         points.append(first_point)
         self._strength = 0.0
 
-        self._ChargeLines = ChargeLines(points, color, 6, 80)
+        self._ChargeLines = ChargeLines(color, 6, 80)
 
     def get_display_object(self):
         return self._ChargeLines
@@ -59,7 +59,7 @@ class Shell(Element):
         points = self._Atom.get_points()
         points.append(points[0])
         self._ChargeLines.points = points
-        return self._ChargeLines.display(game, screen, offset)
+        return self._ChargeLines.display(screen)
 
     def get_Player(self):
         return self._Player

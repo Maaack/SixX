@@ -94,21 +94,26 @@ class SpaceTime:
     def _Atom_Atom_collision_func(self, AtomObjects):
         return True
 
-    def create_Energy(self, PlayerObject, **kwargs):
-        the_energy = Energy(self._Game, PlayerObject, **kwargs)
-        self._objects.append(the_energy)
-        self._visible_objects.append(the_energy)
-        return the_energy
+    def new_Energy(self, PlayerObject, position, energy, **kwargs):
+        EnergyObject = Energy(self._Game, PlayerObject, position, energy, **kwargs)
+        self._objects.append(EnergyObject)
+        self._visible_objects.append(EnergyObject)
+        return EnergyObject
 
-    def create_Atom(self, ElementData, **kwargs):
-        the_atom = Atom(self._Game, ElementData, **kwargs)
-        self._objects.append(the_atom)
-        self._visible_objects.append(the_atom)
-        return the_atom
+    def new_Atom(self, position, angle, skill, *args, **kwargs):
+        AtomObject = Atom(self._Game, position, angle, skill, *args, **kwargs)
+        self._objects.append(AtomObject)
+        self._visible_objects.append(AtomObject)
+        return AtomObject
+
+    def new_Wall(self, a, b, thickness, **kwargs):
+        WallObject = Wall(self._Game, a, b, thickness, **kwargs)
+        self._objects.append(WallObject)
+        self._visible_objects.append(WallObject)
+        return WallObject
 
     def new_Player(self):
-        the_player = Player()
-        the_player_id = the_player.id
-        self._players[the_player_id] = the_player
-
-        return Player()
+        PlayerObject = Player()
+        id = PlayerObject.id
+        self._players[ id ] = PlayerObject
+        return PlayerObject
