@@ -14,8 +14,8 @@ Aligning an atom... hmmm...
 """
 import game
 from game.classes.basics.Hexagon import Hexagon
-from game.classes.basics.Player import Player
 from game.classes.basics.Pin import Pin
+from game.classes.elements import Player
 from game.classes.elements.Charge import Charge
 from game.classes.elements.Energy import Energy
 from game.classes.elements.Shell import Shell

@@ -111,7 +111,7 @@ class View(object):
         """
         :param ViewObject:View
         """
-        if isinstance(ViewObject, game.views.View) and ViewObject.name not in self._Views:
+        if isinstance(ViewObject, game.views.View) and ViewObject.id not in self._Views:
             # TODO: Doing this by name is not going to work, need a globally unique id for each View
             self._Views[ViewObject.id] = {'View':ViewObject,
                                             'position':position,

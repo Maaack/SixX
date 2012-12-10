@@ -2,9 +2,9 @@
 # Energy Class
 import math
 import game
+from game.classes.elements.Player import Player
 from game.libs import *
 from game.classes.basics.Circle import Circle
-from game.classes.basics.Player import Player
 from game.classes.elements.Element import Element
 
 class Energy(Element):

@@ -4,15 +4,18 @@ __author__ = 'marek'
 from game.libs import *
 from game.pymunk import *
 from game.classes import *
-from game.classes.Level import Level
+from game.classes.elements.Player import Player
+from game.classes.data import Level
 
 class RandomLevel(Level):
     screen_edge_spawn_radius = 10
 
-    def __init__(self, level_size = (800,600), number_of_hexes = 40):
+    def __init__(self, PlayerObject, level_size = (800,600), number_of_hexes = 60):
         self._contents = []
-
-        height, width = level_size
+        self._players = []
+        self._players.append(PlayerObject)
+        self._level_size = level_size
+        self._level_height, self._level_width = height, width = level_size
         # Add Walls to the Surface based on size.
         # The Walls should probably make a hexagon.
         borders = [
@@ -22,50 +25,52 @@ class RandomLevel(Level):
             [(height, 0), (0,0)]
         ]
 
-        self.walls = []
-
         for border in borders:
             a, b = border
-            the_wall = Line(a, b)
-            self._contents.append(the_wall)
+            self.new_Wall(a, b)
 
-        self._players = []
+        # Position the Player's energy randomly
+        self.new_Energy(PlayerObject)
 
-        # Place the player's energy on the screen
-        self._player = Player('You', 1, 1)
-        self._players.append(self._player)
-        self.newEnergy(self.player, 100)
-
-        # Make some atoms
+        # Make some atoms, positioned randomly!
         for n in range(number_of_hexes):
-            self.newAtom('basic', False, 0)
+            self.new_Atom('basic', False, 0)
 
+    def new_Wall(self, a, b, thickness = 4):
+        wall_data = {
+            'type':'Wall',
+            'a':a,
+            'b':b,
+            'thickness':thickness,
+            }
+        self._contents.append(wall_data)
+        return wall_data
 
-    def newEnergy(self, PlayerObject, amount = 100, position = False):
+    def new_Energy(self, PlayerObject, energy = 1000, position = False):
         if isinstance(PlayerObject, Player):
-            if PlayerObject not in self.player_characters:
-                self.player_characters.append(PlayerObject)
-            """
-            elif isinstance(player, NonPlayer):
-                if player not in self.non_player_characters:
-                    self.non_player_characters.append(player)
-            """
+            if PlayerObject not in self._players:
+                self._players.append(PlayerObject)
         else:
             raise Exception("Not a valid type for a player!")
 
         if ( position == False or len(position) != 2 ):
-            x = random.randint(self.screen_edge_spawn_radius, self.screen_width-self.screen_edge_spawn_radius)
-            y = random.randint(self.screen_edge_spawn_radius, self.screen_height-self.screen_edge_spawn_radius)
+            x = random.randint(self.screen_edge_spawn_radius, self._level_width - self.screen_edge_spawn_radius)
+            y = random.randint(self.screen_edge_spawn_radius, self._level_height - self.screen_edge_spawn_radius)
             position = x,y
 
+        energy_data = {
+            'type':'Energy',
+            'player':PlayerObject,
+            'position':position,
+            'energy':energy,
+        }
+        self._contents.append(energy_data)
+        return energy_data
 
-        the_energy = Energy(self, PlayerObject, position)
-        return the_energy
-
-    def newAtom(self, skill, position = False, angle = -1):
+    def new_Atom(self, skill, position = False, angle = -1):
         if ( position == False or len(position) != 2 ):
-            x = random.randint(self.screen_edge_spawn_radius, self.screen_width-self.screen_edge_spawn_radius)
-            y = random.randint(self.screen_edge_spawn_radius, self.screen_height-self.screen_edge_spawn_radius)
+            x = random.randint(self.screen_edge_spawn_radius, self._level_width - self.screen_edge_spawn_radius)
+            y = random.randint(self.screen_edge_spawn_radius, self._level_height - self.screen_edge_spawn_radius)
             position = x,y
 
         if (angle < 0 or angle > math.pi*2):
@@ -74,5 +79,11 @@ class RandomLevel(Level):
         if (skill == False):
             skill = 'basic'
 
-        the_atom = Atom(self, position, angle, skill)
-        return the_atom
+        atom_data = {
+            'type':'Atom',
+            'position':position,
+            'angle':angle,
+            'skill':skill,
+            }
+        self._contents.append(atom_data)
+        return atom_data

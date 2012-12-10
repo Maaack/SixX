@@ -3,6 +3,7 @@
 import pygame
 import pymunk
 import random
+from game.views import *
 from game.libs import *
 from game.classes import *
 
@@ -29,32 +30,29 @@ class Game:
     atom_strobe_size = 5
     atom_radius = 10
     screen_edge_spawn_radius = 10
-    # Game Variables
-    number_of_hexes = 60
 
     def __init__(self, InterfaceObject):
         self._Interface = InterfaceObject
         self.screen_width, self.screen_height = screen_size = InterfaceObject.screen_size
 
-        # Set up the physics and collision handling
+        # Create the first SpaceTime that will hold the world and elements in play
+        self._SpaceTime = st = SpaceTime(self)
 
+        # Create the main display
+        self._MainView = MainView(screen_size)
+        self._GameView = GameView(screen_size, self, self._SpaceTime)
+        self._MainView.attach_View(self._GameView)
 
-        # Create the Plane that we are playing in.
-        self._Plane = Plane(self, InterfaceObject.screen_size)
-        # Add it to the objects that display
-        self.display_objects.append(self._Plane)
+        # Create the main Player, and Neutral Player (for later)
+        self._Player = PlayerObject =  Player('You', 1, 1)
+        self._Neutral_Player = Player('Neutral')
 
-        self.display_surface    = pygame.Surface(screen_size, pygame.SRCALPHA)
-        self.foreground_surface = pygame.Surface(screen_size, pygame.SRCALPHA)
-        self.background_surface = pygame.Surface(screen_size, pygame.SRCALPHA)
+        # Create the Level
+        self._Level = RandomLevel(PlayerObject, screen_size)
+        LevelContents = self._Level.get_Elements()
 
         # Define the atom skills and colors
         self.skills_list = ('basic', 'harvest', 'attack')
-
-        self.skill_colors = {'basic': (0 , 0, 0),
-             'harvest': (64, 255, 64),
-             'attack': (255, 64, 64)}
-
         self.atom_mass = 100
         self.atom_max_charge = 100
 
@@ -66,25 +64,42 @@ class Game:
         self.energy_transfer = 2
         self.energy_capacity = 1000
 
-        self._Neutral_Player = Player('Neutral')
-        # Place the player's energy on the screen
-        player_color = random.choice(InterfaceObject.colors)
-        self.player = Player('You', 1, 1, player_color)
-        self.player_characters.append(self.player)
-        self.newEnergy(self.player, 100)
+        self.load_Level()
 
-        # Make some atoms
-        for n in range(self.number_of_hexes):
-            self.newAtom('basic', False, 0)
 
-    def _get_Plane(self):
-        return self._Plane
+    def _set_SpaceTime(self):
+        return self._SpaceTime
 
-    def _set_Plane(self, PlaneObject):
-        if isinstance(PlaneObject, Plane):
-            self._Plane = PlaneObject
+    def _set_SpaceTime(self, SpaceTimeObject):
+        if isinstance(SpaceTimeObject, SpaceTime):
+            self._SpaceTime = SpaceTimeObject
 
-    Plane = property(_get_Plane, _set_Plane)
+    SpaceTime = property(_set_SpaceTime, _set_SpaceTime)
+
+    def load_Level(self, LevelObject = None, SpaceTime = None):
+        if LevelObject == None:
+            LevelObject = self._Level
+        if SpaceTime == None:
+            SpaceTime = self._SpaceTime
+
+        ElementsList = LevelObject.get_Elements()
+
+        for ElementDict in ElementsList:
+            if ElementDict['type'] == 'Atom':
+                position = ElementDict['position']
+                angle = ElementDict['angle']
+                skill = ElementDict['skill']
+                SpaceTime.new_Atom(position, angle, skill)
+            elif ElementDict['type'] == 'Energy':
+                PlayerObject = ElementDict['player']
+                position = ElementDict['position']
+                energy = ElementDict['energy']
+                SpaceTime.new_Energy(PlayerObject, position, energy)
+            elif ElementDict['type'] == 'Wall':
+                a = ElementDict['a']
+                b = ElementDict['b']
+                thickness = ElementDict['thickness']
+                SpaceTime.new_Wall(a, b, thickness)
 
     def select_objects_at_point(self, point):
         action_taken = False
@@ -120,7 +135,7 @@ class Game:
     def step(self, d_game_time, d_real_time):
         self.update_game_time(d_game_time)
         self.update_real_time(d_real_time)
-        self._Plane.step(d_game_time)
+        self._SpaceTime.step(d_game_time)
 
 
     def display(self, screen, offset = (0,0)):
@@ -216,44 +231,8 @@ class Game:
 
         self.highlight_objects.append(the_line)
 
-    def newEnergy(self, PlayerObject, amount = 100, position = False):
-        if isinstance(PlayerObject, Player):
-            if PlayerObject not in self.player_characters:
-                self.player_characters.append(PlayerObject)
-            """
-            elif isinstance(player, NonPlayer):
-                if player not in self.non_player_characters:
-                    self.non_player_characters.append(player)
-            """
-        else:
-            raise Exception("Not a valid type for a player!")
-
-        if ( position == False or len(position) != 2 ):
-            x = random.randint(self.screen_edge_spawn_radius, self.screen_width-self.screen_edge_spawn_radius)
-            y = random.randint(self.screen_edge_spawn_radius, self.screen_height-self.screen_edge_spawn_radius)
-            position = x,y
-
-
-        the_energy = Energy(self, PlayerObject, position)
-        return the_energy
-
-    def newAtom(self, skill, position = False, angle = -1):
-        if ( position == False or len(position) != 2 ):
-            x = random.randint(self.screen_edge_spawn_radius, self.screen_width-self.screen_edge_spawn_radius)
-            y = random.randint(self.screen_edge_spawn_radius, self.screen_height-self.screen_edge_spawn_radius)
-            position = x,y
-
-        if (angle < 0 or angle > math.pi*2):
-            angle = get_random_angle()
-
-        if (skill == False):
-            skill = 'basic'
-
-        the_atom = Atom(self, position, angle, skill)
-        return the_atom
-
     def drop_object_from_space(self, bye_bye):
-        self._Plane.remove(bye_bye)
+        self._SpaceTime.remove(bye_bye)
 
     def drop_highlights(self):
         self.highlight_objects = []
@@ -282,64 +261,6 @@ class Game:
 
     def get_time_difference(self):
         return self.real_time - self.game_time
-
-    def collision_begin_func(self, space, arbiter, *args):
-        # self.collision_pre_solve_func(space, arbiter, args, register=False)
-        return True
-
-    def collision_pre_solve_func(self, space, arbiter, *args, **kwargs):
-        """For each contact, register the collision and figure
-        out what to do. """
-        GameObjects = []
-        EnergyObjects = []
-        ChargeObjects = []
-        AtomObjects = []
-        if 'register' in kwargs:
-            register = kwargs['register']
-        else:
-            register = True
-        for shape in arbiter.shapes:
-            if hasattr(shape, 'game_object'):
-                game_object = shape.game_object
-                GameObjects.append(game_object)
-                """
-                if not hasattr(game_object, 'body'):
-                    # Extra clean up catching just in case
-                    # something has no body.  Should never
-                    # happen... I think.
-                    if hasattr(game_object, 'destroy'):
-                        game_object.destroy()
-                    self.drop_Object(game_object)
-                el"""
-                if isinstance(game_object, Atom):
-                    AtomObjects.append(game_object)
-                elif isinstance(game_object, Energy):
-                    EnergyObjects.append(game_object)
-                elif isinstance(game_object, Charge):
-                    ChargeObjects.append(game_object)
-            else:
-                self._Plane.remove(shape)
-
-
-        if len(EnergyObjects) == 1 and len(AtomObjects) == 1:
-            if register:
-                self.energy_atom_collision_func(EnergyObjects[0], AtomObjects[0])
-            return False
-
-        if len(AtomObjects) == 2:
-            if register:
-                self.atom_atom_collision_func(AtomObjects)
-            return True
-
-        return True
-
-    def energy_atom_collision_func(self, EnergyObject, AtomObject):
-        AtomObject.contact_Energy(EnergyObject)
-        return False
-
-    def atom_atom_collision_func(self, AtomObjects):
-        return True
-
 
     def drop_Object(self, GameObject):
         if GameObject in self.all_objects:

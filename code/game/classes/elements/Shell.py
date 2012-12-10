@@ -12,11 +12,10 @@ Shell can be easily attached to the charge inside an atom.
 Does not add mass (yet) to the rest so therefore doesn't need
 a physical component, just needs to display.
 """
-from game.libs.math_is_fun import *
+from game.classes.elements import Player
 import math
 import game
 import Atom
-from game.classes.basics.Player import Player
 from game.classes.lines.ChargeLines import ChargeLines
 from game.classes.elements.Element import Element
 

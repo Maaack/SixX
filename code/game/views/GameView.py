@@ -213,22 +213,13 @@ class GameView(View):
         width = self.wall_settings['width']
         pygame.draw.line(surface, color, a, b, width)
 
-    def strobe(self, game, screen, offset = (0,0)):
-        strobe_width = interval_triangle_wave(game.real_time, self.strobe_frequency, self.strobe_size)
+    def strobe(self, surface, color, points, strobe_frequency, strobe_size):
+        strobe_width = interval_triangle_wave(self._Game.real_time, strobe_frequency, strobe_size)
         width = int(strobe_width)
-        points = self.get_points()
-        #offset_points = []
-        #for point in points:
-        #    offset_points.append((pymunk.Vec2d(point) + pymunk.Vec2d(offset)))
-        pygame.draw.lines(screen, self.color, 1, points, width)
+        pygame.draw.lines(surface, color, 1, points, width)
 
 
-    def pulse(self, game, screen, offset = (0,0)):
-        strobe_width = interval_triangle_wave(game.real_time, self.strobe_frequency, self.strobe_size)
+    def pulse(self, surface, color, position, radius, strobe_frequency, strobe_size, width):
+        strobe_width = interval_triangle_wave(self._Game.real_time, strobe_frequency, strobe_size)
         width = int(strobe_width)
-        point = self.body.position
-        point = point + offset
-        point_x, point_y = point
-        point = (int(round(point_x)), int(round(point_y)))
-        radius = int(round(self.radius+width))
-        pygame.draw.circle(screen, self.color, point, radius, int(self.width))
+        pygame.draw.circle(surface, color, position, radius, int(width))

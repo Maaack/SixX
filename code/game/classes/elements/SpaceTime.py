@@ -8,10 +8,13 @@
 
 """
 from game.libs import *
-from game.pymunk import *
 from game.classes import *
 import time
 from game.classes.basics import PhysicalWorld
+from game.classes.elements.Wall import Wall
+from game.classes.elements.Atom import Atom
+from game.classes.elements.Energy import Energy
+from game.classes.elements.Player import Player
 
 class SpaceTime:
     def __init__(self, GameObject):

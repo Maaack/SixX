@@ -7,7 +7,7 @@ __author__ = 'marek'
 
 class ElementData(object):
     _data = {
-        'constructor':Element,
+        'constructor':'Element',
         'player':None,
         'position':(0,0),
         'angle':0,

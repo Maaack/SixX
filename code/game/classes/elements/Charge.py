@@ -18,7 +18,7 @@ import game
 import Atom
 from game.classes.basics.Pin import Pin
 from game.classes.basics.Hexagon import Hexagon
-from game.classes.basics.Player import Player
+from game.classes.elements import Player
 from game.classes.elements.Element import Element
 
 class Charge(Element):
