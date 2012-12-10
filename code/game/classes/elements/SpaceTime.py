@@ -31,6 +31,15 @@ class SpaceTime:
         self._curr_step_time = 0
         self._events_dict = {0:'init'}
 
+    def _get_PhysicalWorld(self):
+        return self._PhysicalWorld
+
+    def _set_PhysicalWorld(self, PhysicalWorldObject):
+        if isinstance(PhysicalWorldObject, PhysicalWorld):
+            self._PhysicalWorld = PhysicalWorldObject
+
+    PhysicalWorld = property(_get_PhysicalWorld, _set_PhysicalWorld)
+
     def get_teams(self):
         return self._teams
 

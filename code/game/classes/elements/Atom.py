@@ -44,16 +44,11 @@ class Atom(Element):
             self._position = position = (0,0)
 
         self._Game = GameObject
-        self._Plane = GameObject.Plane
+        self._PhysicalWorld = GameObject.SpaceTime.PhysicalWorld
         if skill in GameObject.skills_list:
             self._skill = skill
         else:
             self._skill = skill = 'basic'
-
-        if skill in GameObject.skill_colors:
-            self._color = color = GameObject.skill_colors[skill]
-        else:
-            self._color = color = ( 0, 0, 0 )
 
         self._radius = radius = GameObject.atom_radius
         self._mass = mass = GameObject.atom_mass
@@ -89,8 +84,8 @@ class Atom(Element):
 
         self._shell_charge_rate = GameObject.shell_charge_rate
 
-        self.BasicObject = self._Hexagon = Hexagon(self._Plane, self, mass, position, radius, angle, color, 2)
-        self._Plane.add(self.BasicObject.body, self.BasicObject.shape)
+        self.BasicObject = self._Hexagon = Hexagon(self._PhysicalWorld, self, mass, position, radius, angle, 2)
+        self._PhysicalWorld.add(self.BasicObject.body, self.BasicObject.shape)
 
     def get_movable_object(self):
         if isinstance(self._Charge, Charge):

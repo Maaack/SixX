@@ -33,9 +33,9 @@ class MainView(View):
         pygame.display.set_caption(window_caption)
 
 
-    def update(self):
+    def update(self, area = None):
         dtime = self._Clock.tick(self._frames_per_second)
         self._display_time += dtime
-        self.update_Views()
+        self.update_Views(area)
         pygame.display.flip()
 

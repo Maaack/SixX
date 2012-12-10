@@ -67,14 +67,14 @@ class Game:
         self.load_Level()
 
 
-    def _set_SpaceTime(self):
+    def _get_SpaceTime(self):
         return self._SpaceTime
 
     def _set_SpaceTime(self, SpaceTimeObject):
         if isinstance(SpaceTimeObject, SpaceTime):
             self._SpaceTime = SpaceTimeObject
 
-    SpaceTime = property(_set_SpaceTime, _set_SpaceTime)
+    SpaceTime = property(_get_SpaceTime, _set_SpaceTime)
 
     def load_Level(self, LevelObject = None, SpaceTime = None):
         if LevelObject == None:
@@ -127,8 +127,10 @@ class Game:
         for i, object in enumerate(self.all_objects):
             if hasattr(object, 'is_hovering'):
                 if (object.is_hovering(point)):
-                    object.display_selected(self, self.background_surface, offset)
-                    self.hovering_objects.append(object)
+                    # TODO: Fill this in again, and move to GameView(?).
+                    #object.display_selected(self, self.background_surface, offset)
+                    #self.hovering_objects.append(object)
+                    pass
 
 
 
@@ -139,56 +141,9 @@ class Game:
 
 
     def display(self, screen, offset = (0,0)):
+        screen_size = screen.get_clip()
         self.display_tick += 1
-        self.display_surface.fill((255,255,255,0))
-        self.background_surface.fill((255,255,255,0))
-        self.foreground_surface.fill((255,255,255,0))
-
-        # Display all the objects in the display
-        # objects list.  Usually Hexagons.
-        for display_object in self.display_objects:
-            if hasattr(display_object, "get_display_object"):
-                display_object = display_object.get_display_object()
-            if hasattr(display_object, "display"):
-                display_object.display(self, self.display_surface)
-            else:
-                print str(display_object) + " has no method 'display'"
-
-        # Selected Objects will create a pulse in the background
-        for selected_object in self.selected_objects:
-            if hasattr(selected_object, "get_display_object"):
-                selected_object = selected_object.get_display_object()
-            if hasattr(selected_object, "display_selected"):
-                selected_object.display_selected(self, self.background_surface)
-            else:
-                print str(selected_object) + " has no method 'display_selected'"
-
-        for hovering_object in self.hovering_objects:
-            if hasattr(hovering_object, "get_display_object"):
-                hovering_object = hovering_object.get_display_object()
-            if hasattr(hovering_object, "display_hovering"):
-                hovering_object.display_hovering(self, self.background_surface)
-            else:
-                print str(hovering_object) + " has no method 'display_hovering'"
-
-        # Now begin with the foreground display
-        # things like the commands that are being
-        # currently executed.
-        for highlighted_object in self.highlight_objects:
-            if hasattr(highlighted_object, "display"):
-                highlighted_object.display(self, self.foreground_surface)
-            else:
-                print str(highlighted_object) + " has no method 'display'"
-
-        # Display background to surface first,
-        # as other things drawn to the screen
-        # will go above this surface graphics.
-        screen.unlock()
-        screen.blit(self.background_surface, offset)
-        screen.blit(self.display_surface, offset)
-        screen.blit(self.foreground_surface, offset)
-        screen.lock()
-
+        self._MainView.update(screen_size)
 
     def move_selected(self, point, offset = (0,0)):
         if len(self.selected_objects) == 0:
@@ -230,9 +185,6 @@ class Game:
             the_line.set_display_delay(main_line_delay)
 
         self.highlight_objects.append(the_line)
-
-    def drop_object_from_space(self, bye_bye):
-        self._SpaceTime.remove(bye_bye)
 
     def drop_highlights(self):
         self.highlight_objects = []

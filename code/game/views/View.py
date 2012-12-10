@@ -159,7 +159,7 @@ class View(object):
         SurfaceObject.lock()
         SurfaceObject.fill(self._background_color)
 
-        for ViewDict in self._Views:
+        for key, ViewDict in self._Views.iteritems():
             View = ViewDict['View']
             position = ViewDict['position']
             if ViewDict['area'] != None:

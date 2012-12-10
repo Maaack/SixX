@@ -12,7 +12,7 @@ class Hexagon(Basic):
     strobe_size = 5
     game = 0
 
-    def __init__(self, PlaneObject, ElementObject, mass, position, radius, angle = 0, color = ( 0, 0, 0 ), width = 1, shape = True):
+    def __init__(self, PlaneObject, ElementObject, mass, position, radius, angle = 0, width = 1, shape = True):
         self._Plane = PlaneObject
         self._Element = ElementObject
         self.mass = mass
@@ -22,7 +22,6 @@ class Hexagon(Basic):
         self.perimeter = 6 * radius
         # Set surface area to ( 3 * sqrt(3) / 2 ) r ^ 2
         self.surface_area = ( 3 * math.sqrt( 3 ) / 2 ) * ( radius ** 2 )
-        self.color = color
         self.width = width
         self.points = get_hex_points(radius, angle)
 

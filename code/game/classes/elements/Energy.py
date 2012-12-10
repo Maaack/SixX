@@ -31,7 +31,7 @@ class Energy(Element):
             self._position = position = (0,0)
 
         self._Game = GameObject
-        self._Plane = GameObject.Plane
+        self._PhysicalWorld = GameObject.SpaceTime.PhysicalWorld
 
         GameObject.all_objects.append(self)
         GameObject.display_objects.append(self)
@@ -83,8 +83,8 @@ class Energy(Element):
             velocity = (0,0)
         r,g,b = color
         color = r, g, b, 127
-        self.BasicObject = self._Circle = Circle(self._Plane, self, mass, position, radius, color)
-        self._Plane.add(self.BasicObject.body, self.BasicObject.shape)
+        self.BasicObject = self._Circle = Circle(self._PhysicalWorld, self, mass, position, radius, color)
+        self._PhysicalWorld.add(self.BasicObject.body, self.BasicObject.shape)
         self.BasicObject.body.velocity = velocity
 
     def get_Player(self):

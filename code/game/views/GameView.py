@@ -112,7 +112,7 @@ class GameView(View):
 
     def update(self, area = None):
 
-        for SurfaceObject2 in self.surfaces_dict:
+        for key, SurfaceObject2 in self.surfaces_dict.iteritems():
             SurfaceObject2.fill((255,255,255,0))
 
         display_objects = self._SpaceTime.get_visible_objects()
