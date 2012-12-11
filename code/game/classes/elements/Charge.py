@@ -35,7 +35,7 @@ class Charge(Element):
             raise Exception("Not a valid type " + str(AtomObject) +  " for a Atom in " + str(self) + " !")
 
         self._Game = GameObject
-        self._Plane = GameObject.Plane
+        self._PhysicalWorld = GameObject.SpaceTime.PhysicalWorld
         self._energy_mass = GameObject.energy_mass
         self._energy_capacity = GameObject.energy_capacity
         self._energy_density = GameObject.energy_density
@@ -70,8 +70,8 @@ class Charge(Element):
             self.destroy_Basics()
         else:
             velocity = (0,0)
-        self.BasicObject = self._Hexagon = Hexagon(self._Plane, self, mass, position, radius, angle, color, 0, False)
-        self._Plane.add(self.BasicObject.body)
+        self.BasicObject = self._Hexagon = Hexagon(self._PhysicalWorld, self, mass, position, radius, angle, 0, False)
+        self._PhysicalWorld.add(self.BasicObject.body)
         self.BasicObject.body.velocity = velocity
         Pin(self._Game, self, self._Atom)
 

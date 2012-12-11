@@ -10,7 +10,7 @@ class Pin:
         if not isinstance(GameObject, game.Game):
             raise Exception("Not a valid type " + str(GameObject) +  " for a Game in " + str(self) + " !")
         self._Game = GameObject
-        self._Plane = GameObject.Plane
+        self._PhysicalWorld = GameObject.SpaceTime.PhysicalWorld
 
         if hasattr(GameElementA, 'get_physical_object'):
             BodyA = GameElementA.get_physical_object()
@@ -35,7 +35,7 @@ class Pin:
             else:
                 constraint =  pymunk.constraint.PinJoint(BodyA, BodyB, positionA, positionB)
                 #pymunk.constraint.PinJoint(self.body, body)
-            self._Plane.add(constraint)
+            self._PhysicalWorld.add(constraint)
             self._Constraint = constraint
             constraint.game_object = self
         else:
@@ -48,7 +48,7 @@ class Pin:
             GameElementB.add_Pin(self)
 
     def destroy(self):
-        self._Plane.remove(self._Constraint)
+        self._PhysicalWorld.remove(self._Constraint)
         self._Constraint = None
 
 

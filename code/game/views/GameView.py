@@ -158,7 +158,7 @@ class GameView(View):
         # currently executed.
         for highlighted_object in self._Game.highlight_objects:
             if hasattr(highlighted_object, "display"):
-                highlighted_object.display(self, self._Game.foreground_surface)
+                highlighted_object.display(self, self.surfaces_dict['selection'])
             else:
                 print str(highlighted_object) + " has no method 'display'"
 
@@ -255,7 +255,7 @@ class GameView(View):
         strobe_width = interval_triangle_wave(self._Game.real_time, strobe_frequency, strobe_size)
         position = int(position.x), int(position.y)
         radius = int(radius)
-        width = int(strobe_width)
+        width = min(int(strobe_width), radius)
         pygame.draw.circle(surface, color, position, radius, width)
 
     def get_Player_color(self, id):
