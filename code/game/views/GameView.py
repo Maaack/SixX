@@ -61,13 +61,15 @@ class GameView(View):
             'shell_width' : 8,
             'selected_func' : self.strobe,
             'selected_func_args' : {
-                'strobe_frequency': 2.0,
-                'strobe_size': 5
+                'color': c_dict['black'],
+                'frequency': 2.0,
+                'size': 5
             },
             'hover_func' : self.strobe,
             'hover_func_args' : {
-                'strobe_frequency': 2.0,
-                'strobe_size': 5
+                'color': c_dict['black'],
+                'frequency': 2.0,
+                'size': 5
             },
         }
 
@@ -75,8 +77,8 @@ class GameView(View):
             'border_width' : 0,
             'selected_func' : self.pulse,
             'selected_func_args' : {
-                'strobe_frequency': 2.0,
-                'strobe_size': 5
+                'frequency': 2.0,
+                'size': 5
             },
         }
 
@@ -89,23 +91,36 @@ class GameView(View):
         # to have all the same transparency
         self.surfaces_dict = {
             'barriers' : pygame.Surface(view_size),
-            'energy_body' : pygame.Surface(view_size),
-            'atom_charge' : pygame.Surface(view_size),
-            'atom_border' : pygame.Surface(view_size),
-            'atom_border2' : pygame.Surface(view_size),
             'atom_shell' : pygame.Surface(view_size, pygame.SRCALPHA),
+            'atom_charge' : pygame.Surface(view_size),
+            'atom_border' : pygame.Surface(view_size, pygame.SRCALPHA),
+            'atom_border2' : pygame.Surface(view_size),
+            'energy_body' : pygame.Surface(view_size, pygame.SRCALPHA),
             'selection' : pygame.Surface(view_size, pygame.SRCALPHA),
             'mouse_hover' : pygame.Surface(view_size, pygame.SRCALPHA),
             'mouse_splash' : pygame.Surface(view_size, pygame.SRCALPHA),
         }
 
+        self.surfaces_list = [
+            self.surfaces_dict['barriers'],
+            self.surfaces_dict['atom_shell'],
+            self.surfaces_dict['atom_charge'],
+            self.surfaces_dict['atom_border2'],
+            self.surfaces_dict['atom_border'],
+            self.surfaces_dict['energy_body'],
+            self.surfaces_dict['selection'],
+        #    self.surfaces_dict['mouse_hover'],
+        #    self.surfaces_dict['mouse_splash'],
+        ]
+
         # Assign colors to each of the players
         self.player_colors_dict = {}
 
+        for SurfaceObject in self.surfaces_dict.itervalues():
+            SurfaceObject.set_colorkey(c_dict['white'])
+
         for PlayerObject in self._players:
-            player_color = random.choice(self.player_color_options_dict)
-            id = PlayerObject.id
-            self.player_colors_dict[ id ] = player_color
+            self.get_Player_color(PlayerObject.id)
 
         self.display_objects = {}
 
@@ -126,22 +141,17 @@ class GameView(View):
             elif isinstance(object, Wall):
                 self.display_Wall(object)
 
-
         for selected_object in self._Game.selected_objects:
-            if hasattr(selected_object, "get_display_object"):
-                selected_object = selected_object.get_display_object()
-            if hasattr(selected_object, "display_selected"):
-                selected_object.display_selected(self, self._Game.background_surface)
-            else:
-                print str(selected_object) + " has no method 'display_selected'"
+            if isinstance(selected_object, Atom):
+                self.display_Atom_selected(selected_object)
+            elif isinstance(selected_object, Energy):
+                self.display_Energy_selected(selected_object)
 
         for hovering_object in self._Game.hovering_objects:
-            if hasattr(hovering_object, "get_display_object"):
-                hovering_object = hovering_object.get_display_object()
-            if hasattr(hovering_object, "display_hovering"):
-                hovering_object.display_hovering(self, self._Game.background_surface)
-            else:
-                print str(hovering_object) + " has no method 'display_hovering'"
+            if isinstance(selected_object, Atom):
+                self.display_Atom_selected(hovering_object)
+            elif isinstance(selected_object, Energy):
+                self.display_Energy_selected(hovering_object)
 
         # Now begin with the foreground display
         # things like the commands that are being
@@ -158,19 +168,22 @@ class GameView(View):
         SurfaceObject.fill(self._background_color)
 
         SurfaceObject.unlock()
-        for SurfaceObject2 in self.surfaces_dict:
-            SurfaceObject.blit(SurfaceObject2)
-        SurfaceObject.lock()
+        for SurfaceObject2 in self.surfaces_list:
+            SurfaceObject.blit(SurfaceObject2, (0,0))
 
     # Display methods for each type of game object
     def display_Energy(self, EnergyObject):
         position, radius = EnergyObject.get_points()
         PlayerObject = EnergyObject.get_Player()
         id = PlayerObject.id
+        self.get_Player_color(id)
         color = self.player_colors_dict[id]
 
         width = self.energy_settings['border_width']
         surface = self.surfaces_dict['energy_body']
+        position = int(position.x), int(position.y)
+        radius = int(radius)
+        width = int(width)
         pygame.draw.circle(surface, color, position, radius, width)
 
     def display_Atom(self, AtomObject):
@@ -180,21 +193,22 @@ class GameView(View):
         # The Display of the Shell is a bit special as it requires
         # an object to keep track of changes to make the UI act more
         # fluid than the data in the actual game may be.
-        points_end = points.copy()
+        points_end = list(points)
         points_end.append(points_end[ 0 ])
         ShellObject = AtomObject.get_Shell()
-        PlayerObject = ShellObject.get_Player()
-        player_id = PlayerObject.id
-        color_shell = self.player_colors_dict[ player_id ]
-        width = self.atom_settings['shell_width']
-        if id not in self.display_objects:
-            self.display_objects[ id ] = {
-                'shell' : ChargeLines(color_shell, width)
-            }
-        ChargeLinesObject = self.display_objects[ id ][ 'shell' ]
-        ChargeLinesObject.points = points_end
-        surface = self.surfaces_dict['atom_shell']
-        ChargeLinesObject.display( surface )
+        if isinstance(ShellObject, Shell):
+            PlayerObject = ShellObject.get_Player()
+            player_id = PlayerObject.id
+            color_shell = self.player_colors_dict[ player_id ]
+            width = self.atom_settings['shell_width']
+            if id not in self.display_objects:
+                self.display_objects[ id ] = {
+                    'shell' : ChargeLines(color_shell, width)
+                }
+            ChargeLinesObject = self.display_objects[ id ][ 'shell' ]
+            ChargeLinesObject.points = points_end
+            surface = self.surfaces_dict['atom_shell']
+            ChargeLinesObject.display( surface )
 
         # Displaying atom border
         color = self.atom_settings['border2_color']
@@ -213,13 +227,43 @@ class GameView(View):
         width = self.wall_settings['width']
         pygame.draw.line(surface, color, a, b, width)
 
+    def display_Atom_selected(self, AtomObject):
+        surface = self.surfaces_dict['selection']
+        color = self.atom_settings['selected_func_args']['color']
+        points = AtomObject.get_points()
+        frequency = self.atom_settings['selected_func_args']['frequency']
+        size = self.atom_settings['selected_func_args']['size']
+        self.strobe(surface, color, points, frequency, size)
+
+
+    def display_Energy_selected(self, EnergyObject):
+        surface = self.surfaces_dict['selection']
+        color = self.get_Player_color(EnergyObject.Player.id)
+        position, radius = EnergyObject.get_points()
+        frequency = self.energy_settings['selected_func_args']['frequency']
+        size = self.energy_settings['selected_func_args']['size']
+        self.pulse(surface, color, position, radius, frequency, size)
+
+
     def strobe(self, surface, color, points, strobe_frequency, strobe_size):
         strobe_width = interval_triangle_wave(self._Game.real_time, strobe_frequency, strobe_size)
         width = int(strobe_width)
         pygame.draw.lines(surface, color, 1, points, width)
 
 
-    def pulse(self, surface, color, position, radius, strobe_frequency, strobe_size, width):
+    def pulse(self, surface, color, position, radius, strobe_frequency, strobe_size):
         strobe_width = interval_triangle_wave(self._Game.real_time, strobe_frequency, strobe_size)
+        position = int(position.x), int(position.y)
+        radius = int(radius)
         width = int(strobe_width)
-        pygame.draw.circle(surface, color, position, radius, int(width))
+        pygame.draw.circle(surface, color, position, radius, width)
+
+    def get_Player_color(self, id):
+        if id in self.player_colors_dict:
+            return self.player_colors_dict[id]
+        else:
+            color_options = self.player_color_options_dict.items()
+            color_name, player_color = random.choice(color_options)
+            self.player_colors_dict[ id ] = player_color
+            return player_color
+

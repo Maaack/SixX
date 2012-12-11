@@ -20,7 +20,7 @@ class View(object):
             self._Surface   = pygame.Surface(view_size)
         self._Views = {}
         self._View_Rect = self._Surface.get_clip()
-        self._background_color = (0,0,0)
+        self._background_color = (255,255,255)
         self._last_update_time = time.time()
         # TODO: Set fps from the Interface or MainView
         self._frames_per_second = 40.0
@@ -159,13 +159,12 @@ class View(object):
         SurfaceObject.lock()
         SurfaceObject.fill(self._background_color)
 
+        SurfaceObject.unlock()
         for key, ViewDict in self._Views.iteritems():
             View = ViewDict['View']
             position = ViewDict['position']
             if ViewDict['area'] != None:
                 area = ViewDict['area']
             View.update(area)
+            SurfaceObject.unlock()
             SurfaceObject.blit(View.Surface, position, area)
-
-        SurfaceObject.unlock()
-

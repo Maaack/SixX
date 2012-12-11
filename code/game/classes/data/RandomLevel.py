@@ -15,14 +15,14 @@ class RandomLevel(Level):
         self._players = []
         self._players.append(PlayerObject)
         self._level_size = level_size
-        self._level_height, self._level_width = height, width = level_size
+        self._level_width, self._level_height = width, height = level_size
         # Add Walls to the Surface based on size.
         # The Walls should probably make a hexagon.
         borders = [
-            [(0,0), (0, width)],
-            [(0, width), (height, width)],
-            [(height, width), (height, 0)],
-            [(height, 0), (0,0)]
+            [(0,0), (width, 0)],
+            [(width, 0), (width, height)],
+            [(width, height), (0, height)],
+            [(0, height), (0,0)]
         ]
 
         for border in borders:

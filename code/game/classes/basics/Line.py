@@ -4,8 +4,9 @@ import pygame
 import math
 from game.libs import *
 from game.pymunk import *
+from game.classes.basics.Basic import Basic
 
-class Line:
+class Line(Basic):
     def __init__(self, a = (0,0), b = (1,1), radius = 1 ):
         self.a = Vec2d(a)
         self.b = Vec2d(b)

@@ -10,6 +10,7 @@ from game.classes.elements.Element import Element
 class Energy(Element):
 
     def __init__(self, GameObject, PlayerObject, position, energy = 1000):
+        super(Energy, self).__init__()
         # Checking all inputs to be expected classes.
         if not isinstance(GameObject, game.Game):
             raise Exception("Not a valid type " + str(GameObject) +  " for a Game in " + str(self) + " !")
@@ -89,6 +90,8 @@ class Energy(Element):
 
     def get_Player(self):
         return self._Player
+
+    Player = property(get_Player)
 
     def _get_energy(self):
         return self._energy

@@ -15,7 +15,7 @@ Aligning an atom... hmmm...
 import game
 from game.classes.basics.Hexagon import Hexagon
 from game.classes.basics.Pin import Pin
-from game.classes.elements import Player
+from game.classes.elements.Player import Player
 from game.classes.elements.Charge import Charge
 from game.classes.elements.Energy import Energy
 from game.classes.elements.Shell import Shell
@@ -33,6 +33,7 @@ class Atom(Element):
         :param kwargs:
         :return:
         """
+        super(Atom, self).__init__()
         # Checking all inputs to be expected classes.
         if not isinstance(GameObject, game.Game):
             raise Exception("Not a valid type " + str(GameObject) +  " for a Game in " + str(self) + " !")
