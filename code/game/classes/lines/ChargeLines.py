@@ -2,13 +2,14 @@
 # Hexagon Class
 import pygame
 import math
-from game.libs import *
+from game.libs import make_hash
 from game import pymunk
 
 
 class ChargeLines(object):
 
     def __init__(self, color = (255, 255, 255), width = 2 , increments = 16):
+        self.id = make_hash()
         self._points = []
         self._line_durations = []
         self._show_sides = 0

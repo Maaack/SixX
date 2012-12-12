@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # Line Class
 import pygame
-from game.libs import *
 from game import pymunk
+from game.libs import *
 
 class OutwardPulseLine:
 
@@ -11,6 +11,7 @@ class OutwardPulseLine:
     size = 1.0
 
     def __init__(self, position, points, color = (0, 200, 0, 128), width = 2, scale = 1.1, duration = 48):
+        self.id = make_hash()
         self.position = pymunk.Vec2d(position)
         self.points = points
         self.color = color

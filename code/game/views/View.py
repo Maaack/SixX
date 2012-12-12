@@ -20,7 +20,7 @@ class View(object):
             self._Surface   = pygame.Surface(view_size)
         self._Views = {}
         self._View_Rect = self._Surface.get_clip()
-        self._background_color = (255,255,255)
+        self._background_color = (255,255,255,0)
         self._last_update_time = time.time()
         # TODO: Set fps from the Interface or MainView
         self._frames_per_second = 40.0

@@ -87,97 +87,58 @@ class GameView(View):
             'color' : c_dict['black']
         }
 
-        # Define a surface for each of the graphical elements that can be assumed
-        # to have all the same transparency
 
-        self.surface_settings_list = [
-            {
-                'name': 'barriers',
-                'color_key': c_dict['white'],
-                'background_color': c_dict['white'],
-                },
-            {
-                'name': 'atom_border2',
-                'color_key': c_dict['white'],
-                'background_color': c_dict['white'],
-                },
-            {
-                'name': 'atom_border',
-                'color_key': c_dict['black'],
-                'background_color': c_dict['black'],
-                },
-            {
-                'name': 'atom_shell',
-                'flags': pygame.SRCALPHA,
-                },
-            {
-                'name': 'atom_charge',
-                'color_key': c_dict['white'],
-                'background_color': c_dict['white'],
-                },
-            {
-                'name': 'energy_body',
-                'color_key': c_dict['white'],
-                'background_color': c_dict['white'],
-                },
-            {
-                'name':'selection',
-                'color_key' : c_dict['white'],
-                'background_color' : c_dict['white'],
-                },
-            {
-                'name':'mouse_hover',
-                'color_key' : c_dict['white'],
-                'background_color' : c_dict['white'],
-                },
-            {
-                'name':'mouse_splash' ,
-                'color_key' : c_dict['white'],
-                'background_color' : c_dict['white'],
-                },
-
+        # Creating the list of layers as they will be displayed in order to the single
+        # per pixel alpha Surface, along with any modifiers that may be attached to
+        # the layer_settings dict.
+        self.layer_list = [
+            'barriers',
+            'atom_border2',
+            'atom_border',
+            'atom_shell',
+            'atom_charge',
+            'energy_body',
+            'selection',
+            'mouse_hover',
+            'mouse_splash',
             ]
 
-        # Now actually loop through and make the surfaces.
-
-        self.surfaces_dict = {}
-        self.surfaces_list = []
-
-        for settings_dict in self.surface_settings_list:
-            if 'name' not in settings_dict:
-                continue
-            name = settings_dict['name']
-            if 'flags' in settings_dict:
-                flags = settings_dict['flags']
-                SurfaceObject = pygame.Surface(view_size, flags)
-            else:
-                SurfaceObject = pygame.Surface(view_size)
-
-            if 'color_key' in settings_dict:
-                color_key = settings_dict['color_key']
-                SurfaceObject.set_colorkey(color_key)
-
-            self.surfaces_dict[name] = SurfaceObject
-            self.surfaces_list.append(SurfaceObject)
+        self.layer_settings = {
+            'barriers':{
+                },
+            'atom_border2':{
+                },
+            'atom_border':{
+                },
+            'atom_shell':{
+                },
+            'atom_charge':{
+                },
+            'energy_body':{
+                },
+            'selection':{
+                },
+            'mouse_hover':{
+                },
+            'mouse_splash':{
+                },
+            }
 
 
         # Assign colors to each of the players
         self.player_colors_dict = {}
 
-        for SurfaceObject in self.surfaces_dict.itervalues():
-            SurfaceObject.set_colorkey(c_dict['white'])
-
         for PlayerObject in self._players:
             self.get_Player_color(PlayerObject.id)
 
         self.display_objects = {}
+        self._display_layer_callbacks = {}
+        self._reset_display_layers()
 
 
     def update(self, area = None):
 
-        for key, SurfaceObject2 in self.surfaces_dict.iteritems():
-            SurfaceObject2.fill((255,255,255,0))
-
+        self._reset_display_layers()
         display_objects = self._SpaceTime.get_visible_objects()
 
         # TODO: Only update objects that are in the area given.
@@ -196,28 +157,60 @@ class GameView(View):
                 self.display_Energy_selected(selected_object)
 
         for hovering_object in self._Game.hovering_objects:
-            if isinstance(selected_object, Atom):
+            if isinstance(hovering_object, Atom):
                 self.display_Atom_selected(hovering_object)
-            elif isinstance(selected_object, Energy):
+            elif isinstance(hovering_object, Energy):
                 self.display_Energy_selected(hovering_object)
 
         # Now begin with the foreground display
         # things like the commands that are being
         # currently executed.
         for highlighted_object in self._Game.highlight_objects:
-            if hasattr(highlighted_object, "display"):
-                highlighted_object.display(self, self.surfaces_dict['selection'])
-            else:
-                print str(highlighted_object) + " has no method 'display'"
+            id = highlighted_object.id
+            self._add_display_layer('selection', id, highlighted_object.display)
 
         SurfaceObject = self.Surface
         SurfaceObject.lock()
         # Clear the SurfaceObject
-        SurfaceObject.fill(self._background_color)
+        SurfaceObject.fill(self.color_dict['white'])
+
+        self._draw_display_layers()
 
         SurfaceObject.unlock()
-        for SurfaceObject2 in self.surfaces_list:
-            SurfaceObject.blit(SurfaceObject2, (0,0))
+
+    def _reset_display_layers(self):
+        """ Resets the display dict to its original format.
+
+        :return:
+        """
+        self._display_layer_callbacks = {}
+
+    def _draw_display_layers(self):
+        for key in self.layer_list:
+            if key not in self._display_layer_callbacks:
+                continue
+            callback_dict = self._display_layer_callbacks[key]
+            layer_settings = self.layer_settings[key]
+            # If there were any settings for the layer we'd do something with them now.
+            if 'opacity' in layer_settings:
+                # ToDo: Something about it.
+                pass
+
+            for key2, callback_data in callback_dict.iteritems():
+                if 'func' in callback_data and 'args' in callback_data:
+                    display_function = callback_data['func']
+                    args = callback_data['args']
+                    display_function(self.Surface, *args)
+
+    def _add_display_layer(self, layer, key, func, *args, **kwargs):
+        if layer not in self._display_layer_callbacks:
+            self._display_layer_callbacks[ layer ] = {}
+
+        self._display_layer_callbacks[layer][key] = {
+            'func': func,
+            'args': args,
+            'kwargs': kwargs,
+        }
 
     # Display methods for each type of game object
     def display_Energy(self, EnergyObject):
@@ -228,11 +221,11 @@ class GameView(View):
         color = self.player_colors_dict[id]
 
         width = self.energy_settings['border_width']
-        surface = self.surfaces_dict['energy_body']
         position = int(position.x), int(position.y)
         radius = int(radius)
         width = int(width)
-        pygame.draw.circle(surface, color, position, radius, width)
+        self._add_display_layer('energy_body', id, pygame.draw.circle,
+            color, position, radius, width)
 
     def display_Atom(self, AtomObject):
         id = AtomObject.id
@@ -255,42 +248,44 @@ class GameView(View):
                 }
             ChargeLinesObject = self.display_objects[ id ][ 'shell' ]
             ChargeLinesObject.points = points_end
-            surface = self.surfaces_dict['atom_shell']
-            ChargeLinesObject.display( surface )
+            self._add_display_layer('atom_shell', id, ChargeLinesObject.display)
 
         # Displaying atom border
         color = self.atom_settings['border2_color']
         width = self.atom_settings['border2_width']
-        surface = self.surfaces_dict['atom_border2']
-        pygame.draw.polygon(surface, color, points, width)
+        self._add_display_layer('atom_border2', id, pygame.draw.polygon,
+            color, points, width)
         color = self.atom_settings['border_color']
         width = self.atom_settings['border_width']
-        surface = self.surfaces_dict['atom_border']
-        pygame.draw.polygon(surface, color, points, width)
+        self._add_display_layer('atom_border', id, pygame.draw.polygon,
+            color, points, width)
 
     def display_Wall(self, WallObject):
-        surface = self.surfaces_dict['barriers']
+        id = WallObject.id
         a, b = WallObject.get_points()
         color = self.wall_settings['color']
         width = self.wall_settings['width']
-        pygame.draw.line(surface, color, a, b, width)
+        self._add_display_layer('barriers', id, pygame.draw.line,
+            color, a, b, width)
 
     def display_Atom_selected(self, AtomObject):
-        surface = self.surfaces_dict['selection']
+        id = AtomObject.id
         color = self.atom_settings['selected_func_args']['color']
         points = AtomObject.get_points()
         frequency = self.atom_settings['selected_func_args']['frequency']
         size = self.atom_settings['selected_func_args']['size']
-        self.strobe(surface, color, points, frequency, size)
+        self._add_display_layer('selection', id, self.strobe,
+            color, points, frequency, size)
 
 
     def display_Energy_selected(self, EnergyObject):
-        surface = self.surfaces_dict['selection']
+        id = EnergyObject.id
         color = self.get_Player_color(EnergyObject.Player.id)
         position, radius = EnergyObject.get_points()
         frequency = self.energy_settings['selected_func_args']['frequency']
         size = self.energy_settings['selected_func_args']['size']
-        self.pulse(surface, color, position, radius, frequency, size)
+        self._add_display_layer('selection', id, self.pulse,
+            color, position, radius, frequency, size)
 
 
     def strobe(self, surface, color, points, strobe_frequency, strobe_size):
