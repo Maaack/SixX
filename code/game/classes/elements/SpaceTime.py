@@ -14,6 +14,7 @@ from game.classes.basics import PhysicalWorld
 from game.classes.elements.Wall import Wall
 from game.classes.elements.Atom import Atom
 from game.classes.elements.Energy import Energy
+from game.classes.elements.Charge import Charge
 from game.classes.elements.Player import Player
 
 class SpaceTime:
@@ -129,3 +130,9 @@ class SpaceTime:
         id = PlayerObject.id
         self._players[ id ] = PlayerObject
         return PlayerObject
+
+    def del_Element(self, ElementObject):
+        if ElementObject in self._objects:
+            self._objects.remove(ElementObject)
+        if ElementObject in self._visible_objects:
+            self._visible_objects.remove(ElementObject)

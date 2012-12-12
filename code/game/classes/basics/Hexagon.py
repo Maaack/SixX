@@ -76,12 +76,15 @@ class Hexagon(Basic):
         pygame.draw.lines(screen, self.color, 1, offset_points, width)
 
     def get_points(self):
-        shape_points = self.shape.get_points()
-        points = []
-        for (x, y) in shape_points:
-            points.append((int(round(x)), int(round(y))))
-        self.points = points
-        return self.points
+        if self.shape is not None:
+            shape_points = self.shape.get_points()
+            points = []
+            for (x, y) in shape_points:
+                points.append((int(round(x)), int(round(y))))
+            self.points = points
+            return self.points
+        else:
+            return False
 
     def get_display_object(self):
         return self

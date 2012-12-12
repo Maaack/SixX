@@ -215,6 +215,7 @@ class Game:
         return self.real_time - self.game_time
 
     def drop_Object(self, GameObject):
+        self.SpaceTime.del_Element(GameObject)
         if GameObject in self.all_objects:
             self.all_objects.remove(GameObject)
         if GameObject in self.hovering_objects:

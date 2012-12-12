@@ -46,6 +46,7 @@ class Atom(Element):
 
         self._Game = GameObject
         self._PhysicalWorld = GameObject.SpaceTime.PhysicalWorld
+
         if skill in GameObject.skills_list:
             self._skill = skill
         else:
@@ -160,7 +161,8 @@ class Atom(Element):
 #            energy_mass = self._Game.energy_mass
 #            self.hexagon.body.apply_force(force)
 
-
+    def _get_Charge(self):
+        return self._Charge
 
     def _set_Charge(self, PlayerObject, energy):
         if not isinstance(PlayerObject, Player):
@@ -174,6 +176,10 @@ class Atom(Element):
         else:
             self.destroy_Charge()
 
+    Charge = property(_get_Charge)
+
+    def _get_Shell(self):
+        return self._Shell
 
     def _set_Shell(self, PlayerObject, strength = 1.0):
         if not isinstance(PlayerObject, Player):
@@ -198,9 +204,7 @@ class Atom(Element):
             self._Shell_strength = strength
             self.destroy_Shell()
 
-    def get_Shell(self):
-        return self._Shell
-
+    Shell = property(_get_Shell)
 
     def add_Pin(self, PinObject):
         if isinstance(PinObject, Pin):

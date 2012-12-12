@@ -36,7 +36,7 @@ class RandomLevel(Level):
         for n in range(number_of_hexes):
             self.new_Atom('basic', False, 0)
 
-    def new_Wall(self, a, b, thickness = 4):
+    def new_Wall(self, a, b, thickness = 6):
         wall_data = {
             'type':'Wall',
             'a':a,

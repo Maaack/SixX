@@ -236,7 +236,7 @@ class GameView(View):
         # fluid than the data in the actual game may be.
         points_end = list(points)
         points_end.append(points_end[ 0 ])
-        ShellObject = AtomObject.get_Shell()
+        ShellObject = AtomObject.Shell
         if isinstance(ShellObject, Shell):
             PlayerObject = ShellObject.get_Player()
             player_id = PlayerObject.id
@@ -259,6 +259,23 @@ class GameView(View):
         width = self.atom_settings['border_width']
         self._add_display_callback('atom_border', id, pygame.draw.polygon,
             color, points, width)
+        ChargeObject = AtomObject.Charge
+        if isinstance(ChargeObject, Charge):
+            PlayerObject = ChargeObject.get_Player()
+            color = self.get_Player_color(PlayerObject.id)
+            radius = ChargeObject.get_radius()
+            angle = ChargeObject.get_angle()
+            position = ChargeObject.get_position()
+            points_floats = get_hex_points(radius,angle,position)
+            points = []
+            for point in points_floats:
+                x, y = point
+                points.append((round(x), round(y)))
+            width = 0
+            self._add_display_callback('atom_charge', id, pygame.draw.polygon,
+                color, points, width)
+
+
 
     def display_Wall(self, WallObject):
         id = WallObject.id

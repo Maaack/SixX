@@ -15,7 +15,7 @@ class MainView(View):
         """
         # Setting the display and getting the Surface object
         self._screen_size = screen_size
-        self._Screen = self._Surface = pygame.display.set_mode(screen_size)
+        self._Screen = self._Surface = pygame.display.set_mode(screen_size,  pygame.SRCALPHA)
 
         # Getting the Clock object
         self._Clock = pygame.time.Clock()

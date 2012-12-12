@@ -47,7 +47,7 @@ class Charge(Element):
         self._angle = AtomObject.get_angle()
         self._atom_radius = radius = GameObject.atom_radius
 
-
+        self._radius = 0
         self._Atom_Pin = None
         self._set_energy(energy)
 
@@ -94,6 +94,9 @@ class Charge(Element):
             self.destroy()
 
     energy = property(_get_energy, _set_energy)
+
+    def get_radius(self):
+        return self._radius
 
     def get_Player(self):
         return self._Player

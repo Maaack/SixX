@@ -7,15 +7,18 @@ from game.pymunk import *
 from game.classes.basics.Basic import Basic
 
 class Line(Basic):
-    def __init__(self, a = (0,0), b = (1,1), radius = 1 ):
+    def __init__(self, ElementObject, a = (0,0), b = (1,1), radius = 1 ):
         self.a = Vec2d(a)
         self.b = Vec2d(b)
         self.radius = radius
         self.body = Body()
+        self.body.game_object = ElementObject
         self.shape = Segment(self.body, a, b, radius)
         self.shape.friction = 100.0
         self.shape.collision_type = 0
         self.shape.elasticity = 0.9
+        self.shape.game_object = ElementObject
+
 
     def display(self, game, screen, offset = (0,0)):
         offset_a = self.a + Vec2d(offset)
