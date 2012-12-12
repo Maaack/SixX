@@ -87,31 +87,79 @@ class GameView(View):
             'color' : c_dict['black']
         }
 
-        # TODO: Define a surface for each of the graphical elements that can be assumed
+        # Define a surface for each of the graphical elements that can be assumed
         # to have all the same transparency
-        self.surfaces_dict = {
-            'barriers' : pygame.Surface(view_size),
-            'atom_shell' : pygame.Surface(view_size, pygame.SRCALPHA),
-            'atom_charge' : pygame.Surface(view_size),
-            'atom_border' : pygame.Surface(view_size, pygame.SRCALPHA),
-            'atom_border2' : pygame.Surface(view_size),
-            'energy_body' : pygame.Surface(view_size, pygame.SRCALPHA),
-            'selection' : pygame.Surface(view_size, pygame.SRCALPHA),
-            'mouse_hover' : pygame.Surface(view_size, pygame.SRCALPHA),
-            'mouse_splash' : pygame.Surface(view_size, pygame.SRCALPHA),
-        }
 
-        self.surfaces_list = [
-            self.surfaces_dict['barriers'],
-            self.surfaces_dict['atom_shell'],
-            self.surfaces_dict['atom_charge'],
-            self.surfaces_dict['atom_border2'],
-            self.surfaces_dict['atom_border'],
-            self.surfaces_dict['energy_body'],
-            self.surfaces_dict['selection'],
-        #    self.surfaces_dict['mouse_hover'],
-        #    self.surfaces_dict['mouse_splash'],
-        ]
+        self.surface_settings_list = [
+            {
+                'name': 'barriers',
+                'color_key': c_dict['white'],
+                'background_color': c_dict['white'],
+                },
+            {
+                'name': 'atom_border2',
+                'color_key': c_dict['white'],
+                'background_color': c_dict['white'],
+                },
+            {
+                'name': 'atom_border',
+                'color_key': c_dict['black'],
+                'background_color': c_dict['black'],
+                },
+            {
+                'name': 'atom_shell',
+                'flags': pygame.SRCALPHA,
+                },
+            {
+                'name': 'atom_charge',
+                'color_key': c_dict['white'],
+                'background_color': c_dict['white'],
+                },
+            {
+                'name': 'energy_body',
+                'color_key': c_dict['white'],
+                'background_color': c_dict['white'],
+                },
+            {
+                'name':'selection',
+                'color_key' : c_dict['white'],
+                'background_color' : c_dict['white'],
+                },
+            {
+                'name':'mouse_hover',
+                'color_key' : c_dict['white'],
+                'background_color' : c_dict['white'],
+                },
+            {
+                'name':'mouse_splash' ,
+                'color_key' : c_dict['white'],
+                'background_color' : c_dict['white'],
+                },
+
+            ]
+
+        # Now actually loop through and make the surfaces.
+
+        self.surfaces_dict = {}
+        self.surfaces_list = []
+
+        for settings_dict in self.surface_settings_list:
+            if 'name' not in settings_dict:
+                continue
+            name = settings_dict['name']
+            if 'flags' in settings_dict:
+                flags = settings_dict['flags']
+                SurfaceObject = pygame.Surface(view_size, flags)
+            else:
+                SurfaceObject = pygame.Surface(view_size)
+
+            if 'color_key' in settings_dict:
+                color_key = settings_dict['color_key']
+                SurfaceObject.set_colorkey(color_key)
+
+            self.surfaces_dict[name] = SurfaceObject
+            self.surfaces_list.append(SurfaceObject)
+
 
         # Assign colors to each of the players
         self.player_colors_dict = {}

@@ -26,7 +26,7 @@ class ChargeLines(object):
 
     def display(self, screen):
         points = self._points
-        line_max_opacity = 255
+        line_max_opacity = 127
         line_opacity = []
 
         for i, duration in enumerate(self._line_durations):
