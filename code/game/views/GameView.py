@@ -133,12 +133,12 @@ class GameView(View):
 
         self.display_objects = {}
         self._display_layer_callbacks = {}
-        self._reset_display_layers()
+        self._reset_display_callbacks()
 
 
     def update(self, area = None):
 
-        self._reset_display_layers()
+        self._reset_display_callbacks()
         display_objects = self._SpaceTime.get_visible_objects()
 
         # TODO: Only update objects that are in the area given.
@@ -167,25 +167,25 @@ class GameView(View):
         # currently executed.
         for highlighted_object in self._Game.highlight_objects:
             id = highlighted_object.id
-            self._add_display_layer('selection', id, highlighted_object.display)
+            self._add_display_callback('selection', id, highlighted_object.display)
 
         SurfaceObject = self.Surface
         SurfaceObject.lock()
         # Clear the SurfaceObject
         SurfaceObject.fill(self.color_dict['white'])
 
-        self._draw_display_layers()
+        self._draw_display_callbacks()
 
         SurfaceObject.unlock()
 
-    def _reset_display_layers(self):
+    def _reset_display_callbacks(self):
         """ Resets the display dict to its original format.
 
         :return:
         """
         self._display_layer_callbacks = {}
 
-    def _draw_display_layers(self):
+    def _draw_display_callbacks(self):
         for key in self.layer_list:
             if key not in self._display_layer_callbacks:
                 continue
@@ -202,7 +202,7 @@ class GameView(View):
                     args = callback_data['args']
                     display_function(self.Surface, *args)
 
-    def _add_display_layer(self, layer, key, func, *args, **kwargs):
+    def _add_display_callback(self, layer, key, func, *args, **kwargs):
         if layer not in self._display_layer_callbacks:
             self._display_layer_callbacks[ layer ] = {}
 
@@ -224,7 +224,7 @@ class GameView(View):
         position = int(position.x), int(position.y)
         radius = int(radius)
         width = int(width)
-        self._add_display_layer('energy_body', id, pygame.draw.circle,
+        self._add_display_callback('energy_body', id, pygame.draw.circle,
             color, position, radius, width)
 
     def display_Atom(self, AtomObject):
@@ -248,16 +248,16 @@ class GameView(View):
                 }
             ChargeLinesObject = self.display_objects[ id ][ 'shell' ]
             ChargeLinesObject.points = points_end
-            self._add_display_layer('atom_shell', id, ChargeLinesObject.display)
+            self._add_display_callback('atom_shell', id, ChargeLinesObject.display)
 
         # Displaying atom border
         color = self.atom_settings['border2_color']
         width = self.atom_settings['border2_width']
-        self._add_display_layer('atom_border2', id, pygame.draw.polygon,
+        self._add_display_callback('atom_border2', id, pygame.draw.polygon,
             color, points, width)
         color = self.atom_settings['border_color']
         width = self.atom_settings['border_width']
-        self._add_display_layer('atom_border', id, pygame.draw.polygon,
+        self._add_display_callback('atom_border', id, pygame.draw.polygon,
             color, points, width)
 
     def display_Wall(self, WallObject):
@@ -265,7 +265,7 @@ class GameView(View):
         a, b = WallObject.get_points()
         color = self.wall_settings['color']
         width = self.wall_settings['width']
-        self._add_display_layer('barriers', id, pygame.draw.line,
+        self._add_display_callback('barriers', id, pygame.draw.line,
             color, a, b, width)
 
     def display_Atom_selected(self, AtomObject):
@@ -274,7 +274,7 @@ class GameView(View):
         points = AtomObject.get_points()
         frequency = self.atom_settings['selected_func_args']['frequency']
         size = self.atom_settings['selected_func_args']['size']
-        self._add_display_layer('selection', id, self.strobe,
+        self._add_display_callback('selection', id, self.strobe,
             color, points, frequency, size)
 
 
@@ -284,7 +284,7 @@ class GameView(View):
         position, radius = EnergyObject.get_points()
         frequency = self.energy_settings['selected_func_args']['frequency']
         size = self.energy_settings['selected_func_args']['size']
-        self._add_display_layer('selection', id, self.pulse,
+        self._add_display_callback('selection', id, self.pulse,
             color, position, radius, frequency, size)
 
 

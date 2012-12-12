@@ -2,8 +2,8 @@
 # Hexagon Class
 import pygame
 import math
-from game.libs import make_hash
 from game import pymunk
+from game.libs import *
 
 
 class ChargeLines(object):
