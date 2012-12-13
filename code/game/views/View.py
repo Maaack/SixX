@@ -27,6 +27,8 @@ class View(object):
         self._update_interval = 1/self._frames_per_second
         self._force_next_update = True
 
+        self.layer_list = []
+
     def _get_id(self):
         return self._id
 
@@ -167,4 +169,40 @@ class View(object):
                 area = ViewDict['area']
             View.update(area)
             SurfaceObject.unlock()
-            SurfaceObject.blit(View.Surface, position, area)
+            View_Surface = View.Surface
+            # View_Surface = View_Surface.convert_alpha()
+            SurfaceObject.blit(View_Surface, position, area)
+
+    def _reset_display_callbacks(self):
+        """ Resets the display dict to its original format.
+
+        :return:
+        """
+        self._display_layer_callbacks = {}
+
+    def _draw_display_callbacks(self):
+        for key in self.layer_list:
+            if key not in self._display_layer_callbacks:
+                continue
+            callback_dict = self._display_layer_callbacks[key]
+            layer_settings = self.layer_settings[key]
+            # If there were any settings for the layer we'd do something with them now.
+            if 'opacity' in layer_settings:
+                # ToDo: Something about it.
+                pass
+
+            for key2, callback_data in callback_dict.iteritems():
+                if 'func' in callback_data and 'args' in callback_data:
+                    display_function = callback_data['func']
+                    args = callback_data['args']
+                    display_function(self.Surface, *args)
+
+    def _add_display_callback(self, layer, key, func, *args, **kwargs):
+        if layer not in self._display_layer_callbacks:
+            self._display_layer_callbacks[ layer ] = {}
+
+        self._display_layer_callbacks[layer][key] = {
+            'func': func,
+            'args': args,
+            'kwargs': kwargs,
+            }

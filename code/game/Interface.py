@@ -24,9 +24,11 @@ class Interface:
     key_keydown = ''
     mod_keydown = ''
     game_offset = pymunk.Vec2d(0, 0)
-    game_edge_scroll_size = 10
+    game_edge_scroll_size = 20
     game_edge_scroll_rate = 4
-    game_edge_scroll_on = False
+    game_edge_scroll_on = True
+    game_zooming_rate = 1.1
+    game_zooming_on = True
 
     def __init__(self):
         # Defining some basic colors
@@ -78,10 +80,21 @@ class Interface:
                 self.button_mousebuttondown = ''
                 self.time_mousebuttondown = 0
                 mouse_click = mouse_x, mouse_y = event.pos
-                mouse_click = pymunk.Vec2d(mouse_click)
-                offset_mouse_click = mouse_click - self.game_offset
-                if (self.click(offset_mouse_click) == 0):
-                    self.command(offset_mouse_click)
+                mouse_button = event.button
+
+                if mouse_button == 1:
+                    if (self.click(mouse_click) == 0):
+                        self.command(mouse_click)
+                        continue
+
+                if mouse_button == 4:
+                    self.game.zoom(self.game_zooming_rate, mouse_click)
+                    continue
+
+                if mouse_button == 5:
+                    self.game.zoom((1/self.game_zooming_rate), mouse_click)
+                    continue
+
 
             if event.type == pygame.MOUSEMOTION:
                 mouse_pos = mouse_x, mouse_y = event.pos
@@ -93,13 +106,13 @@ class Interface:
         mouse_pos = mouse_x, mouse_y = pygame.mouse.get_pos()
         if (self.game_edge_scroll_on):
             if (mouse_x < self.screen_width and mouse_x > self.screen_width - self.game_edge_scroll_size):
-                self.game_offset += pymunk.Vec2d(-self.game_edge_scroll_rate, 0)
+                self.game.scroll(self.game_edge_scroll_rate, 0)
             elif (mouse_x > 0 and mouse_x < self.game_edge_scroll_size):
-                self.game_offset += pymunk.Vec2d(self.game_edge_scroll_rate, 0)
+                self.game.scroll(-self.game_edge_scroll_rate, 0)
             if (mouse_y < self.screen_height and mouse_y > self.screen_height - self.game_edge_scroll_size):
-                self.game_offset += pymunk.Vec2d(0, -self.game_edge_scroll_rate)
+                self.game.scroll(0, self.game_edge_scroll_rate)
             elif (mouse_y > 0 and mouse_y < self.game_edge_scroll_size):
-                self.game_offset += pymunk.Vec2d(0, self.game_edge_scroll_rate)
+                self.game.scroll(0, -self.game_edge_scroll_rate)
 
         # Limit the framerate
         dtime = self.clock.tick(self.fps_limit)

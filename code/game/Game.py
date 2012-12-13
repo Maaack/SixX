@@ -40,8 +40,10 @@ class Game:
 
         # Create the main display
         self._MainView = MainView(screen_size)
+        self._CameraView = CameraView(screen_size)
         self._GameView = GameView(screen_size, self, self._SpaceTime)
-        self._MainView.attach_View(self._GameView)
+        self._MainView.attach_View(self._CameraView)
+        self._CameraView.attach_View(self._GameView)
 
         # Create the main Player, and Neutral Player (for later)
         self._Player = PlayerObject =  Player('You', 1, 1)
@@ -185,6 +187,12 @@ class Game:
             the_line.set_display_delay(main_line_delay)
 
         self.highlight_objects.append(the_line)
+
+    def scroll(self, dx, dy):
+        self._CameraView.scroll(dx, dy)
+
+    def zoom(self, dz, pos):
+        self._CameraView.zoom(dz, pos)
 
     def drop_highlights(self):
         self.highlight_objects = []
