@@ -104,6 +104,7 @@ class Game:
                 SpaceTime.new_Wall(a, b, thickness)
 
     def select_objects_at_point(self, point):
+        point = self._CameraView.translate_point(point)
         action_taken = False
         deselected_objects = []
         for i, selected in enumerate(self.selected_objects):
@@ -124,7 +125,8 @@ class Game:
                     self.selected_objects.append(object)
         return action_taken
 
-    def hover_over_point(self, point, offset = (0,0)):
+    def hover_over_point(self, point):
+        point = self._CameraView.translate_point(point)
         self.hovering_objects = []
         for i, object in enumerate(self.all_objects):
             if hasattr(object, 'is_hovering'):
@@ -142,12 +144,13 @@ class Game:
         self._SpaceTime.step(d_game_time)
 
 
-    def display(self, screen, offset = (0,0)):
+    def display(self, screen):
         screen_size = screen.get_clip()
         self.display_tick += 1
         self._MainView.update(screen_size)
 
     def move_selected(self, point, offset = (0,0)):
+        point = self._CameraView.translate_point(point)
         if len(self.selected_objects) == 0:
             return False
         offset = pymunk.Vec2d(offset)

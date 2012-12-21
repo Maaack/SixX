@@ -83,6 +83,19 @@ class CameraView(View):
         # Not updating the clipping position of the Views,
         # as multiple Cameras might point at the same View.
 
+    def translate_point(self, point):
+        view_Rect = self._View_Rect
+        camera_Rect = self._Camera_Rect
+        x_scale =  float(camera_Rect.width) / view_Rect.width
+        x_offset = view_Rect.left - camera_Rect.left
+        y_scale = float(camera_Rect.height) / view_Rect.height
+        y_offset = view_Rect.top - camera_Rect.top
+        print x_scale, x_offset, y_scale, y_offset
+        old_x, old_y = point
+        new_x = old_x * x_scale - x_offset
+        new_y = old_y * y_scale - y_offset
+        print new_x, new_y
+        return (new_x, new_y)
 
     def update_Views(self, area=None):
         if not isinstance(self._Surface, pygame.Surface):
