@@ -4,7 +4,7 @@ import game
 from game.libs import *
 from game import pymunk
 
-class Pin:
+class Pin(object):
     def __init__(self, GameObject, GameElementA, GameElementB):
         # Checking all inputs to be expected classes.
         if not isinstance(GameObject, game.Game):

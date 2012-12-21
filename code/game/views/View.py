@@ -153,6 +153,11 @@ class View(object):
         self.update_Views(area)
 
     def update_Views(self, area=None):
+        """
+        Update the contents of the specified area.  If no area is provided then
+        update the entire view
+        :param area: pygame.Rect
+        """
         if not isinstance(self.Surface, pygame.Surface):
             raise Exception("Trying to Display on " + str(self.Surface) +  " in " + str(self) + " !")
 

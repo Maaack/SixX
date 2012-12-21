@@ -40,6 +40,12 @@ class CameraView(View):
     zoom = property(_get_zoom, _set_zoom)
 
     def zoom(self, dz, pos):
+        """
+        Zoom the Camera in or out of the View, and center around point.
+        :param dz: The +/- difference to the 'z' coordinate (zoom).
+          + to zoom in, - to zoom out
+        :param pos: The position around which to zoom
+        """
         old_Rect = self._Camera_Rect.copy()
         top = old_Rect.top
         left = old_Rect.left
@@ -47,8 +53,13 @@ class CameraView(View):
         x, y = x / self._zoom + left, y / self._zoom + top
         zoom = self._zoom * dz
         self._set_zoom(zoom)
+        # Copy the new size and old position of the Camera
         new_Rect = self._Camera_Rect.copy()
+        # Set the Camera around the mouse position
         self._Camera_Rect.center = x, y
+        # This next part requires different math depending on whether the view
+        # is zooming in or out.  The purpose is to allow the player to zoom in or
+        # or out around their mouse, without going too far and making it jarring.
         if dz > 1:
             width, height = old_Rect.size
             dx, dy = width * self._zoom_in_scroll_modifier, height * self._zoom_in_scroll_modifier
@@ -64,9 +75,8 @@ class CameraView(View):
     def scroll(self, dx, dy):
         """
         Scroll the Camera over the Views
-        :param dx:
-        :param dy:
-        :return:
+        :param dx: The +/- difference to the x coordinate
+        :param dy: The +/- difference to the y coordinate
         """
         self._Camera_Rect.move_ip(dx,dy)
 

@@ -55,26 +55,6 @@ class Hexagon(Basic):
         self.body = None
 
 
-    def display(self, game, screen, offset = (0,0)):
-        angle = self.body.angle
-        position = self.body.position
-        points_floats = get_hex_points(self.radius,angle,position)
-        points = []
-        for point in points_floats:
-            x, y = point
-            points.append((round(x), round(y)))
-        pygame.draw.polygon(screen, self.color, points, self.width)
-
-
-    def strobe(self, game, screen, offset = (0,0)):
-        strobe_width = interval_triangle_wave(game.real_time, self.strobe_frequency, self.strobe_size)
-        width = int(strobe_width)
-        points = self.get_points()
-        offset_points = []
-        for point in points:
-            offset_points.append((pymunk.Vec2d(point) + pymunk.Vec2d(offset)))
-        pygame.draw.lines(screen, self.color, 1, offset_points, width)
-
     def get_points(self):
         if self.shape is not None:
             shape_points = self.shape.get_points()
@@ -85,9 +65,6 @@ class Hexagon(Basic):
             return self.points
         else:
             return False
-
-    def get_display_object(self):
-        return self
 
     # Just for debugging
     def __str__(self):

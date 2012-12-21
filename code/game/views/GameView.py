@@ -1,5 +1,7 @@
 """ A window into the game world
-Perhaps...
+GameView is responsible for the way all games are displayed.
+A GameView is assigned a single Game that it is responsible
+for reading from the SpaceTime and writing to self.Surface.
 
 """
 __author__ = 'marek'

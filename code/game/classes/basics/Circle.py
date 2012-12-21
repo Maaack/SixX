@@ -41,37 +41,3 @@ class Circle(Basic):
             self._Plane.remove(self.body)
             self.body.game_object = None
         self.body = None
-
-
-    def display(self, game, screen, offset = (0,0)):
-        point = pymunk.Vec2d(self.body.position)
-        point = point + offset
-        point_x, point_y = point
-        point = (int(round(point_x)), int(round(point_y)))
-        radius = int(round(self.radius))
-        pygame.draw.circle(screen, self.color, point, radius, int(self.width))
-        x2 = math.cos(self.body.angle)*self.radius + point_x
-        y2 = math.sin(self.body.angle)*self.radius + point_y
-        line_color =  (255,255,255,63)
-        point_2 = (int(round(x2)),int(round(y2)))
-        pygame.draw.line(screen, line_color, point, point_2, 2)
-
-    def display_selected(self, game, screen, offset = (0,0)):
-        self.pulse(game, screen, offset)
-
-    def display_hovering(self, game, screen, offset = (0,0)):
-        return True
-
-    def pulse(self, game, screen, offset = (0,0)):
-        strobe_width = interval_triangle_wave(game.real_time, self.strobe_frequency, self.strobe_size)
-        width = int(strobe_width)
-        point = pymunk.Vec2d(self.body.position)
-        point = point + offset
-        point_x, point_y = point
-        point = (int(round(point_x)), int(round(point_y)))
-        radius = int(round(self.radius+width))
-        pygame.draw.circle(screen, self.color, point, radius, int(self.width))
-
-
-    def get_display_object(self):
-        return self

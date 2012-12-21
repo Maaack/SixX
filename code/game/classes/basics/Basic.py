@@ -43,18 +43,6 @@ class Basic(object):
         self.body = None
 
 
-    def display(self, game, screen, offset = (0,0)):
-        return True
-
-    def display_selected(self, game, screen, offset = (0,0)):
-        return True
-
-    def display_hovering(self, game, screen, offset = (0,0)):
-        return True
-
-    def get_display_object(self):
-        return self
-
     def get_points(self):
         if isinstance(self.shape, pymunk.Poly):
             return self.shape.get_points()
