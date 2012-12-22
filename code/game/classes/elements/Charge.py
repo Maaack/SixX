@@ -66,13 +66,13 @@ class Charge(Element):
 
     def _set_Hexagon(self, mass, position, radius, angle, color):
         if isinstance(self.BasicObject, Hexagon):
-            velocity = self.BasicObject.body.velocity
+            velocity = self.BasicObject.velocity
             self.destroy_Basics()
         else:
             velocity = (0,0)
         self.BasicObject = self._Hexagon = Hexagon(self._PhysicalWorld, self, mass, position, radius, angle, 0, False)
         self._PhysicalWorld.add(self.BasicObject.body)
-        self.BasicObject.body.velocity = velocity
+        self.BasicObject.velocity = velocity
         Pin(self._Game, self, self._Atom)
 
     def display(self, game, screen, offset = (0,0)):

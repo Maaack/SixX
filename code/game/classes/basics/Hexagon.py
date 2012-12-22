@@ -16,7 +16,6 @@ class Hexagon(Basic):
         self._Plane = PlaneObject
         self._Element = ElementObject
         self.mass = mass
-        self.position = position
         self.radius = radius
         # So simple that the perimeter is just 6x the radius.
         self.perimeter = 6 * radius
@@ -27,7 +26,7 @@ class Hexagon(Basic):
 
         self.inertia = pymunk.moment_for_poly(self.mass, self.points)  # 1
         self.body = pymunk.Body(self.mass, self.inertia)  # 2
-        self.body.position = position # 3
+        self.position = position # 3
         self.body.velocity_limit = 600
         self.body.game_object = ElementObject
 

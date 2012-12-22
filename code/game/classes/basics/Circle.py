@@ -13,7 +13,6 @@ class Circle(Basic):
     def __init__(self, PlaneObject, ElementObject, mass, position, radius, color = (255,255,255), width = 0):
         self._Plane = PlaneObject
         self._Element = ElementObject
-        self.position = position
         self.radius = radius
         self.color = color
         self.width = width
@@ -21,7 +20,7 @@ class Circle(Basic):
         self.mass = self.surface_area / 10
         self.inertia = pymunk.moment_for_circle(self.mass, 0, self.radius)  # 1
         self.body = pymunk.Body(self.mass, self.inertia)  # 2
-        self.body.position = position # 3
+        self.position = position # 3
         self.body.velocity_limit = 600
         self.body.game_object = ElementObject
 

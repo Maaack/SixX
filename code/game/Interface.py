@@ -44,7 +44,7 @@ class Interface:
         self.colors = [self.black, red, green, blue, yellow, cyan, magenta]
 
         # Defining the screen size
-        self.screen_size = self.screen_width, self.screen_height = 900, 600
+        self.screen_size = self.screen_width, self.screen_height = 1200, 900
 
         # Setting the display and getting the Surface object
         self.screen = pygame.display.set_mode(self.screen_size)
