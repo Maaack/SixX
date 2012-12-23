@@ -13,8 +13,7 @@ class Hexagon(Basic):
     game = 0
 
     def __init__(self, PlaneObject, ElementObject, mass, position, radius, angle = 0, width = 1, shape = True):
-        self._Plane = PlaneObject
-        self._Element = ElementObject
+        super(Hexagon, self).__init__(PlaneObject, ElementObject)
         self.mass = mass
         self.radius = radius
         # So simple that the perimeter is just 6x the radius.

@@ -11,13 +11,12 @@ class Circle(Basic):
     strobe_size = 5
 
     def __init__(self, PlaneObject, ElementObject, mass, position, radius, color = (255,255,255), width = 0):
-        self._Plane = PlaneObject
-        self._Element = ElementObject
+        super(Circle, self).__init__(PlaneObject, ElementObject)
         self.radius = radius
         self.color = color
         self.width = width
         self.surface_area = 4 * math.pi * (self.radius ** 2)
-        self.mass = self.surface_area / 10
+        self.mass = mass
         self.inertia = pymunk.moment_for_circle(self.mass, 0, self.radius)  # 1
         self.body = pymunk.Body(self.mass, self.inertia)  # 2
         self.position = position # 3

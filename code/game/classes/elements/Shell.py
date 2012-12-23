@@ -51,15 +51,6 @@ class Shell(Element):
 
         self._ChargeLines = ChargeLines(color, 6, 80)
 
-    def get_display_object(self):
-        return self._ChargeLines
-
-    def display(self, game, screen, offset = (0,0)):
-        points = self._Atom.get_points()
-        points.append(points[0])
-        self._ChargeLines.points = points
-        return self._ChargeLines.display(screen)
-
     def get_Player(self):
         return self._Player
 

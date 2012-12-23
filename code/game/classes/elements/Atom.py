@@ -115,21 +115,6 @@ class Atom(Element):
             self._Shell.destroy()
         self._Shell = None
 
-    def display(self, game, screen, offset = (0,0)):
-        if isinstance(self._Shell, Shell):
-            self._Shell.display(game, screen, offset)
-
-        self.BasicObject.display(game, screen, offset)
-        self.BasicObject.display(game, screen, offset)
-        if isinstance(self._Charge, Charge):
-            self._Charge.display(game, screen, offset)
-
-    def display_selected(self, game, screen, offset = (0,0)):
-        self.BasicObject.strobe(game, screen, offset)
-
-    def display_hovering(self, game, screen, offset = (0,0)):
-        self.BasicObject.strobe(game, screen, offset)
-
     def contact_Energy(self, EnergyObject):
         if not isinstance(EnergyObject, Energy):
             raise Exception("Not a valid type " + str(EnergyObject) +  " for a Energy in " + str(self) + " !")
@@ -209,3 +194,11 @@ class Atom(Element):
     def add_Pin(self, PinObject):
         if isinstance(PinObject, Pin):
             self._Charge_Pin = Pin
+
+    def create_impulse(self, force):
+        max_force = self._energy_transfer
+        # TODO: Visual indicator that the energy needs more of itself to perform
+        # the desired task optimally.
+        force.length = min(force.length, max_force)
+        # TODO: Make the energy split and push off it's smaller part to move
+        self.BasicObject.body.apply_impulse(force)

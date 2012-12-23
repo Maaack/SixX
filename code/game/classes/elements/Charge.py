@@ -75,9 +75,6 @@ class Charge(Element):
         self.BasicObject.velocity = velocity
         Pin(self._Game, self, self._Atom)
 
-    def display(self, game, screen, offset = (0,0)):
-        self.BasicObject.display(game, screen, offset)
-
     def _get_energy(self):
         return self._energy
 
