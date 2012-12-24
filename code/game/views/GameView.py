@@ -8,6 +8,7 @@ __author__ = 'marek'
 
 import pygame
 import math
+from types import *
 from game.libs import *
 from game.classes import *
 from game.views.View import View
@@ -191,18 +192,26 @@ class GameView(View):
         for key in self.layer_list:
             if key not in self._display_layer_callbacks:
                 continue
-            callback_dict = self._display_layer_callbacks[key]
+            callback_Object_dict = self._display_layer_callbacks[key]
             layer_settings = self.layer_settings[key]
             # If there were any settings for the layer we'd do something with them now.
             if 'opacity' in layer_settings:
                 # ToDo: Something about it.
                 pass
 
-            for key2, callback_data in callback_dict.iteritems():
-                if 'func' in callback_data and 'args' in callback_data:
-                    display_function = callback_data['func']
-                    args = callback_data['args']
-                    display_function(self.Surface, *args)
+            for key2, callback_dict in callback_Object_dict.iteritems():
+                if 'func' in callback_dict and callable(callback_dict['func']):
+                    display_function = callback_dict['func']
+                    if 'args' in callback_dict and isinstance(callback_dict['args'], TupleType):
+                        args = callback_dict['args']
+                    else:
+                        args = []
+                    if 'kwargs' in callback_dict and isinstance(callback_dict['kwargs'], DictType):
+                        kwargs = callback_dict['kwargs']
+                    else:
+                        kwargs = {}
+
+                    display_function(self.Surface, *args, **kwargs)
 
     def _add_display_callback(self, layer, key, func, *args, **kwargs):
         if layer not in self._display_layer_callbacks:

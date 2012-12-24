@@ -3,11 +3,12 @@
 import pygame
 import pymunk
 import random
+from types import *
 from game.views import *
 from game.libs import *
 from game.classes import *
 
-class Game:
+class Game(object):
     """Responsible for opening up a game and displaying to the interface"""
     # Going to store just about everything in...
     all_objects = []
@@ -21,9 +22,6 @@ class Game:
     hovering_objects = []
     player_characters = []
     non_player_characters = []
-    # Clocks
-    game_time = 0
-    real_time = 0
     # Display Variables
     display_tick = 0
     atom_strobe_frequency = 2.0
@@ -49,6 +47,9 @@ class Game:
         self._Player = PlayerObject =  Player('You', 1, 1)
         self._Neutral_Player = Player('Neutral')
 
+        # Loading the Action Handler thing
+        self._ActionHandler = ActionHandler(self)
+
         # Create the Level
         self._Level = RandomLevel(PlayerObject, screen_size)
         LevelContents = self._Level.get_Elements()
@@ -65,6 +66,13 @@ class Game:
         self.energy_density = 5
         self.energy_transfer = 2
         self.energy_capacity = 1000
+
+        # Temporary variable
+        # TODO Replace this with the use of the maximum impulse rate on the objects
+        self._desired_energy_speed = 30.
+
+        # Clocks
+        self.reset_times()
 
         self.load_Level()
 
@@ -136,12 +144,11 @@ class Game:
                     #self.hovering_objects.append(object)
                     pass
 
-
-
     def step(self, d_game_time, d_real_time):
         self.update_game_time(d_game_time)
         self.update_real_time(d_real_time)
         self._SpaceTime.step(d_game_time)
+        self._ActionHandler.perform_actions(self.game_time)
 
 
     def display(self, screen):
@@ -149,27 +156,31 @@ class Game:
         self.display_tick += 1
         self._MainView.update(screen_size)
 
-    def move_selected(self, point, offset = (0,0)):
+    def move_selected(self, point):
         point = self._CameraView.translate_point(point)
         if len(self.selected_objects) == 0:
             return False
-        offset = pymunk.Vec2d(offset)
-        point = pymunk.Vec2d(point)
-        offset_point = point - offset
         main_line_delay = 8
         middle_points = []
         for selected in self.selected_objects:
+            if hasattr(selected, "create_impulse"):
+                key = selected.id
+                destination_time = self.game_time + 3.0 # Some amount of time to reach the point in.
+                self._ActionHandler.add_action_callback(key, move_to_point_and_stop, self, selected, point, destination_time)
+                middle_points.append(selected.BasicObject.position)
+                continue
+
             if hasattr(selected, "get_movable_object"):
                 movable = selected.get_movable_object()
                 if isinstance(movable, pymunk.Body):
                     position = pymunk.Vec2d(movable.position)
-                    object_middle = position - offset
+                    object_middle = position
                     # If the selected object is of type Hexagon
                     # then we will try to apply force.
                     # This will be replaced in the future with a
                     # more generic solution.
                     force_modifier = 2.0 / (1 / movable.mass)
-                    force_vector = (offset_point - object_middle) * force_modifier
+                    force_vector = (point - object_middle) * force_modifier
                     force_vector = force_vector
                     movable.apply_impulse(pymunk.Vec2d(force_vector))
                     middle_points.append(object_middle)
@@ -178,7 +189,7 @@ class Game:
         # or in other words, the groups most middle point.
         average_vector = get_average_vector(middle_points)
         # Create a line from the average of selected objects to the point
-        the_line = FadeInLine(average_vector, offset_point)
+        the_line = FadeInLine(average_vector, point)
 
         # If the number of selected objects is greater than 1,
         # draw lines from their middle's to the average, and
@@ -197,33 +208,35 @@ class Game:
     def zoom(self, dz, pos):
         self._CameraView.zoom(dz, pos)
 
-    def drop_highlights(self):
-        self.highlight_objects = []
-
     def get_game_time(self):
-        return self.game_time
+        return self._game_time
+
+    game_time = property(get_game_time)
 
     def get_real_time(self):
-        return self.real_time
+        return self._real_time
+
+    real_time = property(get_real_time)
 
     def update_game_time(self, d_game_time):
-        self.game_time += d_game_time
+        self._game_time += d_game_time
 
     def update_real_time(self, d_real_time):
-        self.real_time += d_real_time
+        self._real_time += d_real_time
 
     def reset_real_time(self):
-        self.real_time = 0
+        self._real_time = 0.
 
     def reset_game_time(self):
-        self.game_time = 0
+        self._game_time = 0.
+
 
     def reset_times(self):
         self.reset_real_time()
         self.reset_game_time()
 
     def get_time_difference(self):
-        return self.real_time - self.game_time
+        return self._real_time - self._game_time
 
     def drop_Object(self, GameObject):
         self.SpaceTime.del_Element(GameObject)
@@ -235,3 +248,59 @@ class Game:
             self.selected_objects.remove(GameObject)
         if GameObject in self.display_objects:
             self.display_objects.remove(GameObject)
+
+
+class ActionHandler(object):
+    def __init__(self, GameObject):
+        self._Game = GameObject
+        self._action_object_dict = {}
+        self._default_action_interval = 0.1
+
+    def add_action_callback(self, key, func, *args, **kwargs):
+        now = self._Game.game_time
+        if key not in self._action_object_dict:
+            self._action_object_dict[ key ] = {
+            'func': func,
+            'args': args,
+            'kwargs': kwargs,
+            'last_update': 0,
+            'next_update': now,
+            'update_frequency': self._default_action_interval
+            }
+        else:
+            self._action_object_dict[ key ][ 'func' ] = func
+            self._action_object_dict[ key ][ 'args' ] = args
+            self._action_object_dict[ key ][ 'kwargs' ] = kwargs
+
+    def perform_actions(self, game_time):
+        delete_callbacks = []
+        for key in self._action_object_dict:
+            callback_dict = self._action_object_dict[key]
+            # If there is no time for the next update then there is something wrong with this dict, skip it
+            if 'next_update' not in callback_dict:
+                continue
+
+            # If the next update time has not yet been surpassed by the current time, skip it.
+            if callback_dict['next_update'] >= game_time:
+                continue
+
+            self._action_object_dict[key]['last_update'] = game_time
+            self._action_object_dict[key]['next_update'] = game_time + self._default_action_interval
+
+            if 'func' in callback_dict and callable(callback_dict['func']):
+                action_command = callback_dict['func']
+                if 'args' in callback_dict and isinstance(callback_dict['args'], TupleType):
+                    args = callback_dict['args']
+                else:
+                    args = []
+                if 'kwargs' in callback_dict and isinstance(callback_dict['kwargs'], DictType):
+                    kwargs = callback_dict['kwargs']
+                else:
+                    kwargs = {}
+
+                result = action_command(*args, **kwargs)
+                if result:
+                    delete_callbacks.append(key)
+
+        for key in delete_callbacks:
+            del self._action_object_dict[key]

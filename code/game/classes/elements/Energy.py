@@ -132,6 +132,6 @@ class Energy(Element):
         max_force = self._energy_transfer
         # TODO: Visual indicator that the energy needs more of itself to perform
         # the desired task optimally.
-        force.length = min(force.length, max_force)
+        # force.length = min(force.length, max_force)
         # TODO: Make the energy split and push off it's smaller part to move
         self.BasicObject.body.apply_impulse(force)

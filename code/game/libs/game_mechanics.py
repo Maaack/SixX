@@ -1,9 +1,21 @@
-def move_to_and_stop_at_point(ElementObject, positionB, time):
-    BasicObject = ElementObject.basic
+def move_to_point_and_stop(GameObject, ElementObject, positionB, time, threshold = 5.0):
+    # TODO Take into account the maximum rate of impulse for an object for calculating desired velocity
+    BasicObject = ElementObject.BasicObject
+    if BasicObject == None:
+        return True
+    remaining_time = time - GameObject.game_time
     positionA = BasicObject.position
     velocityA = BasicObject.velocity
     massA = BasicObject.mass
-    velocityB = get_velocity_for_point_time(positionA, positionB, time)
+    distance = positionA.get_distance(positionB)
+    # TODO Take into account time to decelerate if there is a maximum rate of impulse
+    if distance < threshold:
+        if velocityA != (0,0):
+            velocityB = (0,0)
+        else:
+            return True
+    else:
+        velocityB = get_velocity_for_point_time(positionA, positionB, remaining_time)
     force = get_force_for_velocity(massA, velocityA, velocityB)
     ElementObject.create_impulse(force)
 
@@ -18,10 +30,13 @@ def get_velocity_for_point_time(positionA, positionB, time):
     :param time: Time in seconds from now that the destination should be reached.
     :return: vector
     """
-    difference_vector = positionA - positionB
+    if time < 0 :
+        time = 0.1
+    difference_vector =  positionB - positionA
     return ( difference_vector / time )
 
 def get_force_for_velocity(objectMass, objectVelocity, desiredVelocity):
+    # print "objectMass: "+str(objectMass)+"; objectVelocity: "+str(objectVelocity)+"; desiredVelocity: "+str(desiredVelocity)
     return get_force_for_acceleration(objectMass,
         get_acceleration_for_velocity(objectVelocity,desiredVelocity))
 
